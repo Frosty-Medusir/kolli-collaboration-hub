@@ -4,6 +4,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { catalogRead, relatedTitles, titleDetails } from "./tmdb.server";
 import { rankRecommendations } from "./recommendations";
 import { titleRatingSchema } from "./title-rating-schema";
+import { DEFAULT_RECOMMENDATION_SETTINGS, recommendationSettingsSchema } from "./recommendation-settings";
 
 export const getCatalog = createServerFn({ method: "GET" })
   .inputValidator((data) => z.object({ query: z.string().trim().max(100), type: z.enum(["both", "movie", "tv"]) }).parse(data))
@@ -18,10 +19,13 @@ export const getRecommendations = createServerFn({ method: "POST" })
     const { data: ratings, error } = await context.supabase.from("title_ratings").select("*").eq("user_id", context.userId).order("updated_at", { ascending: false });
     if (error) throw new Error(error.message);
     const rows = ratings ?? [];
+    const { data: savedSettings, error: settingsError } = await context.supabase.from("recommendation_settings").select("*").eq("id", 1).maybeSingle();
+    if (settingsError) throw new Error("Could not load recommendation settings");
+    const settings = recommendationSettingsSchema.parse(savedSettings ?? DEFAULT_RECOMMENDATION_SETTINGS);
     const seeds = rows.filter((r) => r.stars >= 4).slice(0, 3);
     const trending = await catalogRead("", "both");
     const related = await Promise.all(seeds.map((r) => relatedTitles(r.content_id, r.content_type === "tv" ? "tv" : "movie")));
-    return { titles: rankRecommendations([...related.flat(), ...trending], rows).slice(0, 20), ratings: rows };
+    return { titles: rankRecommendations([...related.flat(), ...trending], rows, settings).slice(0, 20), ratings: rows };
   });
 
 export const rateTitle = createServerFn({ method: "POST" })

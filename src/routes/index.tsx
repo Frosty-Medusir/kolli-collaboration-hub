@@ -26,6 +26,8 @@ export const Route = createFileRoute("/")({
       { property: "og:description", content: "Find your people, pick a movie, and make tonight a watch party with Kolli." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      { property: "og:image", content: "https://image.tmdb.org/t/p/w342/x2LSRK2Cm7MZhjluni1msVJ3wDF.jpg" },
+      { name: "twitter:image", content: "https://image.tmdb.org/t/p/w342/x2LSRK2Cm7MZhjluni1msVJ3wDF.jpg" },
     ],
   }),
   component: Home,

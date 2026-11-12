@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { deleteMyAccount } from "@/lib/account.functions";
 import type { Profile } from "@/hooks/use-kolli-session";
+import { RankingControls } from "./RankingControls";
 
 export function AccountDialog({ open, onOpenChange, profile }: { open: boolean; onOpenChange: (o: boolean) => void; profile: Profile | null }) {
   const [confirming, setConfirming] = useState(false);
@@ -61,6 +62,7 @@ export function AccountDialog({ open, onOpenChange, profile }: { open: boolean; 
             <Button variant="ghost" className="text-destructive" onClick={() => setConfirming(true)}>Delete my account</Button>
           )}
         </div>
+        {open && profile && <RankingControls userId={profile.id} />}
       </DialogContent>
     </Dialog>
   );

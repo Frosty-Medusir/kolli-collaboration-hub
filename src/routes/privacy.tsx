@@ -21,7 +21,7 @@ const SECTIONS: [string, string[]][] = [
   ["3. Data we process and why", [
     "Account and guest details: display name and guest/account status. We use these to sign you in and show your identity to your match.",
     "Watch activity: titles selected, match participants, session dates/status, Kosmi invite link, and party count. We use these to find a match, operate the shared room flow, and support feedback.",
-    "Messages: chat text and sender details are stored to deliver chat.",
+    "Messages: chat text and sender details are stored to deliver chat. Automated checks reject known abusive terms, harassment patterns, repeated text, excessive links and rapid or duplicate messages before they are stored. These checks may miss abuse or reject harmless text; you can still report your partner.",
     "Ratings and reports: ratings, optional comments, and any safety reports you submit are used for community safety, feedback, and moderation.",
     "Title ratings: your private movie and TV ratings and their genres are used to personalize recommendations. Catalog details and community scores come from TMDB; Kolli does not send your display name or private ratings to TMDB.",
     "Technical data: standard server logs and request metadata may be processed to operate, secure, and troubleshoot the service.",
@@ -46,7 +46,7 @@ function Privacy() {
       <main className="mx-auto max-w-2xl px-6 py-16">
         <Eyebrow>YOUR DATA, YOUR CHOICE</Eyebrow>
         <h1 className="mt-4 font-display text-5xl font-extrabold tracking-tighter">Privacy <span className="font-serif font-normal italic text-accent">notice.</span></h1>
-        <p className="mt-3 text-xs text-muted-foreground">Last updated: 16 October 2026</p>
+        <p className="mt-3 text-xs text-muted-foreground">Last updated: 12 November 2026</p>
         <p className="mt-6 text-sm leading-relaxed text-muted-foreground">This notice describes how Kolli handles personal data in line with Kenya’s Data Protection Act, 2019, and applicable regulations. It is a product notice, not a substitute for legal advice.</p>
         {SECTIONS.map(([h, ps]) => (
           <section key={h} className="mt-8">

@@ -41,6 +41,8 @@ function Lobby() {
   const [text, setText] = useState("");
   const [room, setRoom] = useState("");
   const [missing, setMissing] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [chatError, setChatError] = useState("");
   const bottom = useRef<HTMLDivElement>(null);
 
   const partnerId = match && userId ? (match.user1 === userId ? match.user2 : match.user1) : null;
@@ -88,10 +90,17 @@ function Lobby() {
   async function send(e: React.FormEvent) {
     e.preventDefault();
     const body = text.trim();
-    if (!body || !userId || !profile) return;
-    setText("");
+    if (!body || !userId || !profile || sending) return;
+    setSending(true);
+    setChatError("");
     const { data, error } = await supabase.from("messages").insert({ match_id: matchId, sender_id: userId, sender_name: profile.username, body: body.slice(0, 1000) }).select().single();
-    if (error) return void toast.error("Message not sent");
+    setSending(false);
+    if (error) {
+      const safeError = /^(Harassment|Repeated text|Duplicate message|Too many messages|Chat closed)/.test(error.message) ? error.message : "Message not sent. Please try again.";
+      setChatError(safeError);
+      return;
+    }
+    setText("");
     setMessages((prev) => (prev.some((x) => x.id === data.id) ? prev : [...prev, data]));
   }
 
@@ -184,9 +193,10 @@ function Lobby() {
             ))}
             <div ref={bottom} />
           </div>
+          {chatError && <p role="alert" className="px-3 py-2 text-xs text-destructive">{chatError}</p>}
           <form onSubmit={send} className="flex gap-2 border-t p-3">
             <Input value={text} onChange={(e) => setText(e.target.value)} disabled={ended} placeholder={ended ? "Chat closed" : "Type a message…"} maxLength={1000} className="bg-background" aria-label="Message" />
-            <Button type="submit" disabled={ended || !text.trim()}>Send</Button>
+            <Button type="submit" disabled={ended || sending || !text.trim()}>{sending ? "Sending…" : "Send"}</Button>
           </form>
         </section>
       </main>

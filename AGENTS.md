@@ -37,3 +37,5 @@ use the editor.
 - Native Kolli rooms are created by the matches.room_id database default and use the existing lobby URL and match RLS; this makes room creation atomic and avoids public invitation access.
 - TMDB discovery uses server functions through the linked connector; use real TMDB IDs plus media type for identity so movie and TV IDs cannot collide.
 - Private title ratings use profile-scoped RLS and cascade on profile deletion; recommendations combine genre affinity, confidence-adjusted TMDB scores, related titles, and popularity while excluding rated titles.
+- Chat safety is enforced by a database insert trigger with per-sender transaction locking, so direct writes cannot bypass harassment, repetition, duplicate and burst checks.
+- Recommendation weights and the negative-affinity filter use shared validated settings; only server-verified roles in user_roles may change them, with RLS as a second boundary. Never assign roles from display names or client metadata.
