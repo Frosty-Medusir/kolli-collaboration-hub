@@ -36,7 +36,7 @@ async def main():
   await a.get_by_text('Hello, ready for the movie?',exact=True).wait_for()
   await peer.reload()
   await peer.get_by_text('Hello, ready for the movie?',exact=False).wait_for()
-  for body,reason in [('f.u.c.k you','Harassment'),('kill yourself','Harassment'),('f​uck you','Harassment'),('aaaaaaaaaaaa','Repeated text'),('watch watch watch watch watch watch','Repeated text'),('https://a.test https://b.test https://c.test https://d.test','Repeated text'),('Hello, ready for the movie?','Duplicate message')]:
+  for body,reason in [('f.u.c.k you','Harassment'),('ｆｕｃｋ you','Harassment'),('b ! t c h','Harassment'),('fuсk you','Harassment'),('kill yourself','Harassment'),('f​uck you','Harassment'),('aaaaaaaaaaaa','Repeated text'),('watch watch watch watch watch watch','Repeated text'),('https://a.test https://b.test https://c.test https://d.test','Repeated text'),('Hello, ready for the movie?','Duplicate message')]:
    await send(body)
    await a.get_by_role('alert').filter(has_text=reason).wait_for()
    assert await a.get_by_role('textbox',name='Message',exact=True).input_value()==body
@@ -50,6 +50,21 @@ async def main():
   await a.get_by_role('alert').filter(has_text='Too many messages').wait_for()
   count=await a.evaluate('''async(mid)=>{const {supabase}=await import('/src/integrations/supabase/client.ts');return (await supabase.from('messages').select('id').eq('match_id',mid)).data.length;}''',mid)
   assert count==5
+  await a.get_by_role('button',name='Report conduct',exact=True).click()
+  await a.get_by_label('Report reason').select_option('harassment')
+  await a.get_by_role('textbox',name='Report details').fill('Conduct report verification')
+  await a.get_by_role('button',name='Send report',exact=True).click()
+  await a.get_by_role('status').filter(has_text='Your report was received.').wait_for()
+  await a.get_by_role('dialog').screenshot(path='/tmp/browser/chat-safety/report.png')
+  rows=await a.evaluate('''async(mid)=>{const {supabase}=await import('/src/integrations/supabase/client.ts');return (await supabase.from('reports').select('*').eq('match_id',mid)).data;}''',mid)
+  assert len(rows)==1 and rows[0]['reason']=='harassment' and rows[0]['description']=='Conduct report verification'
+  partner=await peer.evaluate('''async()=>{const {supabase}=await import('/src/integrations/supabase/client.ts');return (await supabase.auth.getUser()).data.user.id;}''')
+  assert rows[0]['reported_user']==partner
+  hidden=await peer.evaluate('''async(mid)=>{const {supabase}=await import('/src/integrations/supabase/client.ts');return (await supabase.from('reports').select('*').eq('match_id',mid)).data;}''',mid)
+  assert hidden==[]
+  repeat=await a.evaluate('''async(mid)=>{const {supabase}=await import('/src/integrations/supabase/client.ts');return (await supabase.rpc('report_conduct',{p_match:mid,p_reason:'spam',p_description:''})).error?.message;}''',mid)
+  assert repeat.startswith('Your recent report')
+  await a.get_by_role('button',name='Close report',exact=True).click()
   await a.goto('http://localhost:8080')
   await a.get_by_role('button',name='Account and privacy').click()
   await a.get_by_role('dialog').wait_for()

@@ -371,6 +371,10 @@ export type Database = {
         Args: { p_comment: string; p_match: string; p_stars: number }
         Returns: undefined
       }
+      report_conduct: {
+        Args: { p_description: string; p_match: string; p_reason: string }
+        Returns: string
+      }
       set_kosmi_room: {
         Args: { p_match: string; p_url: string }
         Returns: string

@@ -18,7 +18,7 @@ export function Footer() {
       <Brand small />
       <p className="font-serif italic text-ink-panel-foreground/70">Good movies are better together.</p>
       <span className="text-[10px] tracking-widest text-ink-panel-foreground/60">
-        <Link to="/privacy" className="underline underline-offset-4">PRIVACY</Link> · MADE FOR MOVIE PEOPLE <span className="text-accent">✳</span>
+        <Link to="/privacy" className="underline underline-offset-4">PRIVACY</Link> · © 2026 Kodovoz Labs
       </span>
     </footer>
   );

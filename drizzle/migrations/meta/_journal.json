@@ -36,6 +36,20 @@
       "when": 1794489750008,
       "tag": "0004_chat_safety_and_recommendation_controls",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1794491418264,
+      "tag": "0005_conduct_report_submission",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1794491430949,
+      "tag": "0006_normalize_obfuscated_chat_abuse",
+      "breakpoints": true
     }
   ]
 }

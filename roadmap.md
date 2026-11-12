@@ -1,9 +1,13 @@
 # Tasks
+- [x] Add conduct reporting during active chat and strengthen obfuscated-abuse filtering; verified private report readback and Unicode/spaced abuse rejection.
+- [x] Set Kodovoz Labs operator contact and copyright.
+- [ ] Complete operator postal address: not yet supplied.
+- [ ] Set permanent admin for frostysznroot: no existing account found; secure account email and sign-in setup needed, never use a hardcoded password.
+- [ ] Launch: waiting for secure permanent admin setup and postal address.
 - [x] Create an admin page with secured recommendation controls and an account-menu link; verified access denial, admin save/reload and mobile layout.
 - [x] Deliver brief version 1 release notes.
 - [x] Enforce chat harassment and spam filtering; verified accepted and blocked messages, direct writes, duplicates and burst limits.
 - [x] Add admin-adjustable rating-based recommendations; verified normal-user denial and admin save/reload.
-- [ ] Assign permanent admin: requested display name “Admin” has no matching account; verified account identity needed.
 - [x] Write brief pre-release notes.
 - [x] Connect TMDB and replace sample discovery with live titles and community ratings.
 - [x] Add personal title ratings and recommendations ranked from viewing preferences; tested search, save, reload, and personalized picks.

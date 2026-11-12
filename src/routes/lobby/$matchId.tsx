@@ -12,6 +12,7 @@ import { isKosmiUrl } from "@/lib/titles";
 import { cn } from "@/lib/utils";
 import { Copy, LockKeyhole } from "lucide-react";
 import { roomInviteUrl } from "@/lib/rooms";
+import { ConductReport } from "@/components/kolli/ConductReport";
 
 export const Route = createFileRoute("/lobby/$matchId")({
   head: () => ({
@@ -29,7 +30,6 @@ export const Route = createFileRoute("/lobby/$matchId")({
 
 type Match = Tables<"matches">;
 type Message = Tables<"messages">;
-const REASONS = [["inappropriate-behavior", "Inappropriate behavior"], ["harassment", "Harassment"], ["spam", "Spam"], ["fake-profile", "Fake profile"], ["other", "Other"]] as const;
 
 function Lobby() {
   const { matchId } = Route.useParams();
@@ -152,7 +152,7 @@ function Lobby() {
           </div>
 
           {ended ? (
-            <AfterParty matchId={matchId} partnerId={partnerId} partnerName={partnerName} onDone={() => navigate({ to: "/" })} />
+            <AfterParty matchId={matchId} partnerName={partnerName} onDone={() => navigate({ to: "/" })} />
           ) : (
             <>
               <div className="mt-8 flex flex-wrap items-center justify-between gap-4 border-y py-5">
@@ -182,7 +182,7 @@ function Lobby() {
         </section>
 
         <section className="flex h-[560px] flex-col rounded-md border bg-card">
-          <div className="border-b p-4 font-display text-sm font-bold">Chat</div>
+          <div className="flex flex-wrap items-center justify-between gap-2 border-b p-4"><h2 className="font-display text-sm font-bold">Chat</h2>{partnerId && <ConductReport matchId={matchId} partnerName={partnerName} />}</div>
           <div className="flex-1 space-y-2 overflow-y-auto p-4">
             {messages.length === 0 && <p className="text-center text-xs text-muted-foreground">Say hello to {partnerName} 👋</p>}
             {messages.map((m) => (
@@ -204,13 +204,10 @@ function Lobby() {
   );
 }
 
-function AfterParty({ matchId, partnerId, partnerName, onDone }: { matchId: string; partnerId: string | null; partnerName: string; onDone: () => void }) {
+function AfterParty({ matchId, partnerName, onDone }: { matchId: string; partnerName: string; onDone: () => void }) {
   const [stars, setStars] = useState(0);
   const [comment, setComment] = useState("");
   const [rated, setRated] = useState(false);
-  const [reporting, setReporting] = useState(false);
-  const [reason, setReason] = useState<string>("inappropriate-behavior");
-  const [details, setDetails] = useState("");
 
   async function rate(e: React.FormEvent) {
     e.preventDefault();
@@ -221,16 +218,6 @@ function AfterParty({ matchId, partnerId, partnerName, onDone }: { matchId: stri
     toast.success("Thanks for rating!");
   }
 
-  async function report(e: React.FormEvent) {
-    e.preventDefault();
-    if (!partnerId) return;
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return void toast.error("Join Kolli before sending a report");
-    const { error } = await supabase.from("reports").insert({ reported_user: partnerId, reported_by: user.id, match_id: matchId, reason, description: details.slice(0, 1000) || null });
-    if (error) return void toast.error("Could not send report");
-    setReporting(false);
-    toast.success("Report sent. Thank you for keeping Kolli safe.");
-  }
 
   return (
     <div className="mt-8 grid gap-4">
@@ -254,18 +241,6 @@ function AfterParty({ matchId, partnerId, partnerName, onDone }: { matchId: stri
             <Button type="button" variant="ghost" onClick={onDone}>Skip</Button>
           </div>
         </form>
-      )}
-      {reporting ? (
-        <form onSubmit={report} className="rounded-md border bg-card p-5">
-          <h3 className="font-display font-bold">Report {partnerName}</h3>
-          <select value={reason} onChange={(e) => setReason(e.target.value)} className="mt-3 w-full rounded-md border bg-background p-2 text-sm" aria-label="Reason">
-            {REASONS.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
-          </select>
-          <Textarea value={details} onChange={(e) => setDetails(e.target.value)} maxLength={1000} placeholder="What happened? (optional)" className="mt-2 bg-background" />
-          <Button type="submit" variant="destructive" className="mt-3">Send report</Button>
-        </form>
-      ) : (
-        <button onClick={() => setReporting(true)} className="text-left text-xs text-muted-foreground underline">Something wrong? Report this person</button>
       )}
     </div>
   );
