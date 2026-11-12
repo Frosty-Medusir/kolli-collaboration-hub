@@ -55,7 +55,7 @@ function Home() {
   const liveEvents = useQuery({
     queryKey: ["live-events-public"], enabled: view === "live", staleTime: 60000,
     queryFn: async () => {
-      const { data, error } = await supabase.from("live_events").select("*").gt("ends_at", new Date().toISOString()).order("starts_at");
+      const { data, error } = await supabase.from("live_events").select("id, title, category, description, poster_url, starts_at, ends_at, created_at").gt("ends_at", new Date().toISOString()).order("starts_at");
       if (error) throw new Error("Could not load live events");
       return (data ?? []).map((e): Title => ({ id: e.id, type: "event", title: e.title, poster: e.poster_url ?? "", year: new Date(e.starts_at).toLocaleString([], { weekday: "short", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }), rating: "", description: e.description, category: e.category as "sports" | "esports" | "reality", startsAt: e.starts_at }));
     },

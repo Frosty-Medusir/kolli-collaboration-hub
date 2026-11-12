@@ -17,7 +17,7 @@ export function LiveEventsAdmin({ userId }: { userId: string }) {
 
 function EventsEditor() {
   const client = useQueryClient();
-  const events = useQuery({ queryKey: ["live-events"], queryFn: async () => (await supabase.from("live_events").select("*").order("starts_at")).data ?? [] });
+  const events = useQuery({ queryKey: ["live-events"], queryFn: async () => (await supabase.from("live_events").select("id, title, category, description, poster_url, starts_at, ends_at, created_at").order("starts_at")).data ?? [] });
   const [form, setForm] = useState({ title: "", category: "sports", description: "", poster_url: "", starts_at: "", ends_at: "" });
   const [busy, setBusy] = useState(false);
   async function add(e: React.FormEvent) {

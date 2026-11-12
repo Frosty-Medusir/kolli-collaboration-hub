@@ -78,6 +78,13 @@
       "when": 1794496585350,
       "tag": "0010_ai_chat_approvals",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1794497381618,
+      "tag": "0011_scope_live_events_reads",
+      "breakpoints": true
     }
   ]
 }
