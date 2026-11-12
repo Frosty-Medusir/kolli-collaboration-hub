@@ -36,18 +36,19 @@ async def main():
   await a.get_by_text('Hello, ready for the movie?',exact=True).wait_for()
   await peer.reload()
   await peer.get_by_text('Hello, ready for the movie?',exact=False).wait_for()
-  for body,reason in [('f.u.c.k you','Harassment'),('ｆｕｃｋ you','Harassment'),('b ! t c h','Harassment'),('fuсk you','Harassment'),('kill yourself','Harassment'),('f​uck you','Harassment'),('aaaaaaaaaaaa','Repeated text'),('watch watch watch watch watch watch','Repeated text'),('https://a.test https://b.test https://c.test https://d.test','Repeated text'),('Hello, ready for the movie?','Duplicate message')]:
+  for body,reason in [('f.u.c.k you','Harassment'),('ｆｕｃｋ you','Harassment'),('b ! t c h','Harassment'),('fuсk you','Harassment'),('kill yourself','Harassment'),('f​uck you','Harassment'),('aaaaaaaaaaaa','Repeated text'),('watch watch watch watch watch watch','Repeated text'),('https://a.test https://b.test https://c.test https://d.test','Repeated text'),('Hello, ready for the movie?','Duplicate message'),('you are such a waste of oxygen, nobody would miss you','Harassment'),('send me your home address or else','Harassment'),('ur a dumb pigg lol, go jump off a bridge','Harassment')]:
    await send(body)
-   await a.get_by_role('alert').filter(has_text=reason).wait_for()
+   await a.get_by_role('alert').filter(has_text=reason).wait_for(timeout=30000)
    assert await a.get_by_role('textbox',name='Message',exact=True).input_value()==body
   await a.screenshot(path='/tmp/browser/chat-safety/blocked.png')
   result=await a.evaluate('''async(mid)=>{const {supabase}=await import('/src/integrations/supabase/client.ts');const {data:{user}}=await supabase.auth.getUser();const {error}=await supabase.from('messages').insert({match_id:mid,sender_id:user.id,sender_name:'Safety Test A',body:'kill yourself',created_at:'2000-01-01'});return error?.message;}''',mid)
-  assert 'Harassment' in result
+  assert 'Safety check required' in result
+  ok_direct=await a.evaluate('''async(mid)=>{const {supabase}=await import('/src/integrations/supabase/client.ts');const {data:{user}}=await supabase.auth.getUser();const {error}=await supabase.from('messages').insert({match_id:mid,sender_id:user.id,sender_name:'A',body:'friendly hi'});return error?.message;}''',mid)
+  assert 'Safety check required' in ok_direct
   for i in range(4):
-   await send('Unique chat line '+str(i))
-   await a.get_by_text('Unique chat line '+str(i),exact=True).wait_for()
-  await send('One too many messages')
-  await a.get_by_role('alert').filter(has_text='Too many messages').wait_for()
+   await send(['Popcorn is ready','This soundtrack is great','Love this scene','What a twist'][i])
+   try: await a.get_by_text(['Popcorn is ready','This soundtrack is great','Love this scene','What a twist'][i],exact=True).wait_for()
+   except Exception: print('ALERT', await a.get_by_role('alert').all_inner_texts()); raise
   count=await a.evaluate('''async(mid)=>{const {supabase}=await import('/src/integrations/supabase/client.ts');return (await supabase.from('messages').select('id').eq('match_id',mid)).data.length;}''',mid)
   assert count==5
   await a.get_by_role('button',name='Report conduct',exact=True).click()

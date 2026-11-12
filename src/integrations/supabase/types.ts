@@ -14,6 +14,30 @@ export type Database = {
   }
   public: {
     Tables: {
+      chat_approvals: {
+        Row: {
+          body: string
+          expires_at: string
+          id: string
+          match_id: string
+          sender_id: string
+        }
+        Insert: {
+          body: string
+          expires_at?: string
+          id?: string
+          match_id: string
+          sender_id: string
+        }
+        Update: {
+          body?: string
+          expires_at?: string
+          id?: string
+          match_id?: string
+          sender_id?: string
+        }
+        Relationships: []
+      }
       device_tokens: {
         Row: {
           created_at: string
@@ -186,6 +210,7 @@ export type Database = {
       }
       messages: {
         Row: {
+          approval_id: string | null
           body: string
           created_at: string
           id: string
@@ -194,6 +219,7 @@ export type Database = {
           sender_name: string
         }
         Insert: {
+          approval_id?: string | null
           body: string
           created_at?: string
           id?: string
@@ -202,6 +228,7 @@ export type Database = {
           sender_name: string
         }
         Update: {
+          approval_id?: string | null
           body?: string
           created_at?: string
           id?: string

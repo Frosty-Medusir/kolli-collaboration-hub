@@ -8,6 +8,7 @@ import { Brand, Eyebrow } from "@/components/kolli/Brand";
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
 import { useKolliSession } from "@/hooks/use-kolli-session";
+import { approveChatMessage } from "@/lib/chat-moderation.functions";
 import { isKosmiUrl } from "@/lib/titles";
 import { cn } from "@/lib/utils";
 import { Copy, LockKeyhole } from "lucide-react";
@@ -51,6 +52,7 @@ function Lobby() {
   const [teleparty, setTeleparty] = useState("");
   const [icebreaker, setIcebreaker] = useState("");
   const loadIcebreaker = useServerFn(ensureIcebreaker);
+  const approveFn = useServerFn(approveChatMessage);
 
   const partnerId = match && userId ? (match.user1 === userId ? match.user2 : match.user1) : null;
 
@@ -105,10 +107,12 @@ function Lobby() {
     if (!body || !userId || !profile || sending) return;
     setSending(true);
     setChatError("");
-    const { data, error } = await supabase.from("messages").insert({ match_id: matchId, sender_id: userId, sender_name: profile.username, body: body.slice(0, 1000) }).select().single();
+    const check = await approveFn({ data: { matchId, body: body.slice(0, 1000) } }).catch(() => ({ ok: false as const, error: "Message not sent. Please try again." }));
+    if (!check.ok) { setSending(false); setChatError(check.error); return; }
+    const { data, error } = await supabase.from("messages").insert({ match_id: matchId, sender_id: userId, sender_name: profile.username, body: check.body, approval_id: check.approvalId }).select().single();
     setSending(false);
     if (error) {
-      const safeError = /^(Harassment|Repeated text|Duplicate message|Too many messages|Chat closed)/.test(error.message) ? error.message : "Message not sent. Please try again.";
+      const safeError = /^(Harassment|Repeated text|Duplicate message|Too many messages|Chat closed|Safety check)/.test(error.message) ? error.message : "Message not sent. Please try again.";
       setChatError(safeError);
       return;
     }
