@@ -7,6 +7,7 @@ import { useKolliSession } from "@/hooks/use-kolli-session";
 import { AdminSignIn } from "@/components/kolli/AdminSignIn";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
+import { ModerationDashboard } from "@/components/kolli/ModerationDashboard";
 
 export const Route = createFileRoute("/admin")({
   head: () => ({ meta: [
@@ -36,7 +37,7 @@ function AdminPage() {
         <h1 className="flex items-center gap-3 font-display text-4xl font-bold"><ShieldCheck className="size-8 text-accent" />Admin</h1>
         {profile && <span className="text-sm text-muted-foreground">{profile.username}</span>}
       </div>
-      {!ready ? <p role="status" className="text-muted-foreground">Loading account…</p> : userId ? <><RankingControls key={userId} userId={userId} page /><Button variant="outline" className="mt-6" onClick={signOut}>Sign out / switch account</Button></> : <AdminSignIn />}
+      {!ready ? <p role="status" className="text-muted-foreground">Loading account…</p> : userId ? <><ModerationDashboard key={`moderation-${userId}`} userId={userId} /><RankingControls key={userId} userId={userId} page /><Button variant="outline" className="mt-6" onClick={signOut}>Sign out / switch account</Button></> : <AdminSignIn />}
     </main>
   </div>;
 }

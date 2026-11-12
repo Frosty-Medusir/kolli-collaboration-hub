@@ -100,6 +100,35 @@ export type Database = {
           },
         ]
       }
+      moderation_bans: {
+        Row: {
+          banned_at: string
+          banned_by: string
+          reason: string
+          user_id: string
+        }
+        Insert: {
+          banned_at?: string
+          banned_by: string
+          reason: string
+          user_id: string
+        }
+        Update: {
+          banned_at?: string
+          banned_by?: string
+          reason?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "moderation_bans_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           adult_confirmed_at: string
@@ -252,6 +281,8 @@ export type Database = {
           reason: string
           reported_by: string
           reported_user: string
+          resolved_at: string | null
+          resolved_by: string | null
           status: string
         }
         Insert: {
@@ -262,6 +293,8 @@ export type Database = {
           reason: string
           reported_by: string
           reported_user: string
+          resolved_at?: string | null
+          resolved_by?: string | null
           status?: string
         }
         Update: {
@@ -272,6 +305,8 @@ export type Database = {
           reason?: string
           reported_by?: string
           reported_user?: string
+          resolved_at?: string | null
+          resolved_by?: string | null
           status?: string
         }
         Relationships: [
@@ -345,6 +380,12 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_moderation_dashboard: { Args: never; Returns: Json }
+      admin_resolve_report: { Args: { p_report: string }; Returns: undefined }
+      admin_set_user_ban: {
+        Args: { p_banned: boolean; p_reason: string; p_user: string }
+        Returns: undefined
+      }
       chat_content_violation: { Args: { p_body: string }; Returns: string }
       end_match: { Args: { p_match: string }; Returns: undefined }
       has_role: {

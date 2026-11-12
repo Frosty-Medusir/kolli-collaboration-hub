@@ -57,6 +57,13 @@
       "when": 1794491719183,
       "tag": "0007_verified_owner_admin_bootstrap",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1794493044288,
+      "tag": "0008_admin_conduct_moderation",
+      "breakpoints": true
     }
   ]
 }
