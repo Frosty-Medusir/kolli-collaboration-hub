@@ -13,7 +13,7 @@ export function TitleRatingDialog({ title, current, onClose, onSaved }: { title:
   async function rate(stars: number) {
     if (!title || busy) return;
     setBusy(true);
-    try { await save({ data: { id: title.id, type: title.type, stars } }); toast.success("Your rating saved"); onSaved(); onClose(); }
+    try { await save({ data: { id: title.id, type: title.type === "tv" ? "tv" : "movie", stars } }); toast.success("Your rating saved"); onSaved(); onClose(); }
     catch (error) { toast.error(error instanceof Error ? error.message : "Could not save rating"); }
     finally { setBusy(false); }
   }

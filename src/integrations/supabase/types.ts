@@ -14,6 +14,119 @@ export type Database = {
   }
   public: {
     Tables: {
+      device_tokens: {
+        Row: {
+          created_at: string
+          flagged: boolean
+          token_hash: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          flagged?: boolean
+          token_hash: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          flagged?: boolean
+          token_hash?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      endorsements: {
+        Row: {
+          badge: string
+          created_at: string
+          from_user: string
+          match_id: string
+          to_user: string
+        }
+        Insert: {
+          badge: string
+          created_at?: string
+          from_user: string
+          match_id: string
+          to_user: string
+        }
+        Update: {
+          badge?: string
+          created_at?: string
+          from_user?: string
+          match_id?: string
+          to_user?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "endorsements_match_id_fkey"
+            columns: ["match_id"]
+            isOneToOne: false
+            referencedRelation: "matches"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      guest_session_log: {
+        Row: {
+          created_at: string
+          id: string
+          ip_address: string
+          session_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          ip_address: string
+          session_id?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          ip_address?: string
+          session_id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      live_events: {
+        Row: {
+          category: string
+          created_at: string
+          created_by: string
+          description: string
+          ends_at: string
+          id: number
+          poster_url: string | null
+          starts_at: string
+          title: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          created_by?: string
+          description?: string
+          ends_at: string
+          id?: never
+          poster_url?: string | null
+          starts_at: string
+          title: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          created_by?: string
+          description?: string
+          ends_at?: string
+          id?: never
+          poster_url?: string | null
+          starts_at?: string
+          title?: string
+        }
+        Relationships: []
+      }
       matches: {
         Row: {
           content_id: number
@@ -22,12 +135,14 @@ export type Database = {
           created_at: string
           ended_at: string | null
           expires_at: string
+          icebreaker: string | null
           id: string
           kosmi_room_url: string | null
           poster_url: string | null
           release_year: number | null
           room_id: string
           status: string
+          teleparty_url: string | null
           user1: string
           user2: string
         }
@@ -38,12 +153,14 @@ export type Database = {
           created_at?: string
           ended_at?: string | null
           expires_at?: string
+          icebreaker?: string | null
           id?: string
           kosmi_room_url?: string | null
           poster_url?: string | null
           release_year?: number | null
           room_id?: string
           status?: string
+          teleparty_url?: string | null
           user1: string
           user2: string
         }
@@ -54,12 +171,14 @@ export type Database = {
           created_at?: string
           ended_at?: string | null
           expires_at?: string
+          icebreaker?: string | null
           id?: string
           kosmi_room_url?: string | null
           poster_url?: string | null
           release_year?: number | null
           room_id?: string
           status?: string
+          teleparty_url?: string | null
           user1?: string
           user2?: string
         }
@@ -129,6 +248,36 @@ export type Database = {
           },
         ]
       }
+      notifications: {
+        Row: {
+          body: string
+          created_at: string
+          id: string
+          match_id: string | null
+          read_at: string | null
+          title: string
+          user_id: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          id?: string
+          match_id?: string | null
+          read_at?: string | null
+          title: string
+          user_id: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          id?: string
+          match_id?: string | null
+          read_at?: string | null
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           adult_confirmed_at: string
@@ -180,6 +329,7 @@ export type Database = {
           release_year: number | null
           status: string
           user_id: string
+          vibes: string[]
         }
         Insert: {
           content_id: number
@@ -192,6 +342,7 @@ export type Database = {
           release_year?: number | null
           status?: string
           user_id: string
+          vibes?: string[]
         }
         Update: {
           content_id?: number
@@ -204,6 +355,7 @@ export type Database = {
           release_year?: number | null
           status?: string
           user_id?: string
+          vibes?: string[]
         }
         Relationships: []
       }
@@ -319,6 +471,24 @@ export type Database = {
           },
         ]
       }
+      shadow_flags: {
+        Row: {
+          created_at: string
+          reason: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          reason: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          reason?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       title_ratings: {
         Row: {
           content_id: number
@@ -375,6 +545,51 @@ export type Database = {
         }
         Relationships: []
       }
+      watch_requests: {
+        Row: {
+          content_id: number
+          content_title: string
+          content_type: string
+          created_at: string
+          expires_at: string
+          id: string
+          match_id: string | null
+          poster_url: string | null
+          release_year: number | null
+          status: string
+          user_id: string
+          vibes: string[]
+        }
+        Insert: {
+          content_id: number
+          content_title: string
+          content_type: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          match_id?: string | null
+          poster_url?: string | null
+          release_year?: number | null
+          status?: string
+          user_id: string
+          vibes?: string[]
+        }
+        Update: {
+          content_id?: number
+          content_title?: string
+          content_type?: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          match_id?: string | null
+          poster_url?: string | null
+          release_year?: number | null
+          status?: string
+          user_id?: string
+          vibes?: string[]
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -386,8 +601,27 @@ export type Database = {
         Args: { p_banned: boolean; p_reason: string; p_user: string }
         Returns: undefined
       }
+      badge_counts: { Args: { p_user: string }; Returns: Json }
+      cancel_watch_request: { Args: { p_request: string }; Returns: undefined }
       chat_content_violation: { Args: { p_body: string }; Returns: string }
+      clean_vibes: { Args: { p: string[] }; Returns: string[] }
       end_match: { Args: { p_match: string }; Returns: undefined }
+      endorse_partner: {
+        Args: { p_badges: string[]; p_match: string }
+        Returns: number
+      }
+      endorsement_total: { Args: { p_user: string }; Returns: number }
+      find_match: {
+        Args: {
+          p_content_id: number
+          p_poster: string
+          p_title: string
+          p_type: string
+          p_vibes: string[]
+          p_year: number
+        }
+        Returns: Json
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -406,7 +640,31 @@ export type Database = {
         Returns: Json
       }
       leave_queue: { Args: never; Returns: undefined }
+      mark_notifications_read: { Args: never; Returns: undefined }
+      match_partner_badges: { Args: { p_match: string }; Returns: Json }
       match_partner_name: { Args: { p_match: string }; Returns: string }
+      matching_guard: { Args: { me: string }; Returns: boolean }
+      my_badges: { Args: never; Returns: Json }
+      notify_user: {
+        Args: {
+          p_body: string
+          p_match: string
+          p_title: string
+          p_user: string
+        }
+        Returns: undefined
+      }
+      queue_for_later: {
+        Args: {
+          p_content_id: number
+          p_poster: string
+          p_title: string
+          p_type: string
+          p_vibes: string[]
+          p_year: number
+        }
+        Returns: Json
+      }
       queue_status: { Args: never; Returns: Json }
       rate_partner: {
         Args: { p_comment: string; p_match: string; p_stars: number }
@@ -416,10 +674,25 @@ export type Database = {
         Args: { p_description: string; p_match: string; p_reason: string }
         Returns: string
       }
+      resolve_content: {
+        Args: {
+          p_content_id: number
+          p_poster: string
+          p_title: string
+          p_type: string
+          p_year: number
+        }
+        Returns: Record<string, unknown>
+      }
       set_kosmi_room: {
         Args: { p_match: string; p_url: string }
         Returns: string
       }
+      set_teleparty_link: {
+        Args: { p_match: string; p_url: string }
+        Returns: string
+      }
+      vibes_compatible: { Args: { a: string[]; b: string[] }; Returns: boolean }
     }
     Enums: {
       app_role: "admin" | "user"

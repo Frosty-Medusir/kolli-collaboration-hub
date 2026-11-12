@@ -1,4 +1,12 @@
 # Tasks
+- [x] Vibe filters (Chatty/Silent Watcher, Mic On/Text Only) block clashing pairs; tested.
+- [x] Save-for-later queue (7 days) with in-app match alerts; tested.
+- [ ] Email match alerts: waiting for the owner to set up a sender email domain.
+- [x] Positive-only badges after watch parties; endorsed people are preferred in matching; tested.
+- [x] TMDB icebreaker trivia in each new lobby; tested.
+- [x] Admin-curated live events (sports, esports, reality finales); tested.
+- [x] Teleparty invite links in the lobby (no official Teleparty integration exists); tested.
+- [x] 24-hour guest IP log and browser-token shadow-ban for returning banned/reported users; tested.
 - [x] Add animated loading screen, matching favicon and manifest-only phone installation; verified animated startup/dismissal, reduced motion, install fallback, icon delivery, installed-state dismissal and phone layout.
 - [x] Add admin reported-user dashboard with secured ban/unban and report resolution; verified real report review, ban persistence, matching/chat denial, unban, non-admin denial and mobile layout.
 - [x] Add conduct reporting during active chat and strengthen obfuscated-abuse filtering; verified private report readback and Unicode/spaced abuse rejection.

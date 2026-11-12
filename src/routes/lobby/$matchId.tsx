@@ -13,6 +13,9 @@ import { cn } from "@/lib/utils";
 import { Copy, LockKeyhole } from "lucide-react";
 import { roomInviteUrl } from "@/lib/rooms";
 import { ConductReport } from "@/components/kolli/ConductReport";
+import { useServerFn } from "@tanstack/react-start";
+import { ensureIcebreaker } from "@/lib/watch.functions";
+import { BADGES, isTelepartyUrl, type BadgeId } from "@/lib/vibes";
 
 export const Route = createFileRoute("/lobby/$matchId")({
   head: () => ({
@@ -44,6 +47,10 @@ function Lobby() {
   const [sending, setSending] = useState(false);
   const [chatError, setChatError] = useState("");
   const bottom = useRef<HTMLDivElement>(null);
+  const [partnerBadges, setPartnerBadges] = useState<Record<string, number> | null>(null);
+  const [teleparty, setTeleparty] = useState("");
+  const [icebreaker, setIcebreaker] = useState("");
+  const loadIcebreaker = useServerFn(ensureIcebreaker);
 
   const partnerId = match && userId ? (match.user1 === userId ? match.user2 : match.user1) : null;
 
@@ -58,6 +65,11 @@ function Lobby() {
       setRoom(m.kosmi_room_url ?? "");
       const { data: name } = await supabase.rpc("match_partner_name", { p_match: matchId });
       if (name && alive) setPartnerName(name);
+      setTeleparty(m.teleparty_url ?? "");
+      setIcebreaker(m.icebreaker ?? "");
+      const { data: badges } = await supabase.rpc("match_partner_badges", { p_match: matchId });
+      if (alive) setPartnerBadges((badges ?? null) as Record<string, number> | null);
+      if (!m.icebreaker) loadIcebreaker({ data: { matchId } }).then((r) => { if (alive) setIcebreaker(r.icebreaker); }).catch(() => undefined);
       const { data: msgs } = await supabase.from("messages").select("*").eq("match_id", matchId).order("created_at").limit(200);
       if (alive) setMessages(msgs ?? []);
     })();
@@ -77,7 +89,7 @@ function Lobby() {
     const poll = setInterval(async () => {
       const { data: m } = await supabase.from("matches").select("*").eq("id", matchId).maybeSingle();
       if (m && alive) setMatch((prev) => {
-        if (prev && prev.kosmi_room_url === m.kosmi_room_url && prev.status === m.status) return prev;
+        if (prev && prev.kosmi_room_url === m.kosmi_room_url && prev.status === m.status && prev.teleparty_url === m.teleparty_url) return prev;
         setRoom(m.kosmi_room_url ?? "");
         return m;
       });
@@ -111,6 +123,16 @@ function Lobby() {
     if (error) return void toast.error(error.message);
     setMatch((m) => (m ? { ...m, kosmi_room_url: room.trim() || null } : m));
     toast.success(room.trim() ? "Room shared with your match" : "Room link removed");
+  }
+
+  async function saveTeleparty(e: React.FormEvent) {
+    e.preventDefault();
+    const url = teleparty.trim();
+    if (url && !isTelepartyUrl(url)) return void toast.error("Teleparty link must be an HTTPS link on teleparty.com");
+    const { error } = await supabase.rpc("set_teleparty_link", { p_match: matchId, p_url: url });
+    if (error) return void toast.error(error.message);
+    setMatch((m) => (m ? { ...m, teleparty_url: url || null } : m));
+    toast.success(url ? "Teleparty link shared" : "Teleparty link removed");
   }
 
   async function finish() {
@@ -148,6 +170,9 @@ function Lobby() {
             <div>
               <h1 className="font-display text-3xl font-bold tracking-tight">{match.content_title}</h1>
               <p className="text-sm text-muted-foreground">with <strong className="text-foreground">{partnerName}</strong></p>
+              {partnerBadges && BADGES.some((b) => (partnerBadges[b.id] ?? 0) > 0) && (
+                <p className="mt-1 flex flex-wrap gap-1" aria-label={`${partnerName}'s badges`}>{BADGES.filter((b) => (partnerBadges[b.id] ?? 0) > 0).map((b) => <span key={b.id} className="rounded-full border bg-card px-2 py-0.5 text-[10px] font-semibold">{b.label} ×{partnerBadges[b.id]}</span>)}</p>
+              )}
             </div>
           </div>
 
@@ -171,6 +196,15 @@ function Lobby() {
                   <Button type="submit">Share</Button>
                 </div>
               </form>
+              <form onSubmit={saveTeleparty} className="mt-6 border-b pb-5">
+                <label className="text-sm font-semibold" htmlFor="teleparty">Teleparty link (Netflix, Prime & more)</label>
+                <p className="mb-3 text-xs text-muted-foreground">If you both already subscribe, start a <a className="underline" href="https://www.teleparty.com" target="_blank" rel="noreferrer">Teleparty ↗</a> and paste its invite link for synced streaming.</p>
+                <div className="flex gap-2">
+                  <Input id="teleparty" value={teleparty} onChange={(e) => setTeleparty(e.target.value)} placeholder="https://redirect.teleparty.com/join/..." className="bg-background" />
+                  <Button type="submit">Share</Button>
+                </div>
+                {match.teleparty_url && <a href={match.teleparty_url} target="_blank" rel="noreferrer" className="mt-3 inline-block text-sm font-semibold text-accent underline">Join the Teleparty ↗</a>}
+              </form>
               {match.kosmi_room_url && (
                 <div className="mt-4 overflow-hidden rounded-md border bg-ink-panel">
                   <iframe src={match.kosmi_room_url} title="Kosmi room" className="aspect-video w-full" allow="autoplay; fullscreen; microphone; camera; display-capture" />
@@ -184,6 +218,7 @@ function Lobby() {
         <section className="flex h-[560px] flex-col rounded-md border bg-card">
           <div className="flex flex-wrap items-center justify-between gap-2 border-b p-4"><h2 className="font-display text-sm font-bold">Chat</h2>{partnerId && <ConductReport matchId={matchId} partnerName={partnerName} />}</div>
           <div className="flex-1 space-y-2 overflow-y-auto p-4">
+            {icebreaker && <div className="rounded-md border border-accent/30 bg-accent/5 p-3 text-xs" aria-label="Icebreaker"><span className="mb-1 block text-[10px] font-bold tracking-widest text-accent">KOLLI ICEBREAKER</span>{icebreaker}</div>}
             {messages.length === 0 && <p className="text-center text-xs text-muted-foreground">Say hello to {partnerName} 👋</p>}
             {messages.map((m) => (
               <div key={m.id} className={cn("max-w-[80%] rounded-lg px-3 py-2 text-sm", m.sender_id === userId ? "ml-auto bg-foreground text-background" : "bg-muted")}>
@@ -208,12 +243,17 @@ function AfterParty({ matchId, partnerName, onDone }: { matchId: string; partner
   const [stars, setStars] = useState(0);
   const [comment, setComment] = useState("");
   const [rated, setRated] = useState(false);
+  const [badges, setBadges] = useState<BadgeId[]>([]);
 
   async function rate(e: React.FormEvent) {
     e.preventDefault();
     if (!stars) return void toast.error("Pick 1 to 5 stars");
     const { error } = await supabase.rpc("rate_partner", { p_match: matchId, p_stars: stars, p_comment: comment });
     if (error) return void toast.error(error.message);
+    if (badges.length) {
+      const { error: badgeError } = await supabase.rpc("endorse_partner", { p_match: matchId, p_badges: badges });
+      if (badgeError) toast.error("Rating saved, but badges could not be sent");
+    }
     setRated(true);
     toast.success("Thanks for rating!");
   }
@@ -233,6 +273,13 @@ function AfterParty({ matchId, partnerName, onDone }: { matchId: string; partner
           <div className="mt-3 flex gap-1" role="radiogroup" aria-label="Star rating">
             {[1, 2, 3, 4, 5].map((n) => (
               <button type="button" key={n} aria-label={`${n} star${n > 1 ? "s" : ""}`} onClick={() => setStars(n)} className={cn("text-3xl", n <= stars ? "text-star" : "text-border")}>★</button>
+            ))}
+          </div>
+          <p className="mt-4 text-sm font-semibold">Give {partnerName} a badge <span className="font-normal text-muted-foreground">(optional, positive only)</span></p>
+          <div className="mt-2 flex flex-wrap gap-2" role="group" aria-label="Endorsement badges">
+            {BADGES.map((b) => (
+              <button type="button" key={b.id} aria-pressed={badges.includes(b.id)} onClick={() => setBadges((c) => c.includes(b.id) ? c.filter((x) => x !== b.id) : [...c, b.id])}
+                className={cn("rounded-full border px-3 py-1.5 text-xs font-semibold", badges.includes(b.id) ? "border-foreground bg-foreground text-background" : "bg-background text-muted-foreground")}>{b.label}</button>
             ))}
           </div>
           <Textarea value={comment} onChange={(e) => setComment(e.target.value)} maxLength={500} placeholder="Optional comment" className="mt-3 bg-background" />

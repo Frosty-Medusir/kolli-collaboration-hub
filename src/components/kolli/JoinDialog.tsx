@@ -7,12 +7,22 @@ import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { supabase } from "@/integrations/supabase/client";
 import { DISPLAY_NAME_RE } from "@/lib/titles";
+import { useServerFn } from "@tanstack/react-start";
+import { registerGuestDevice } from "@/lib/watch.functions";
+
+const DEVICE_KEY = "kolli_device_token";
+function deviceToken() {
+  let t = localStorage.getItem(DEVICE_KEY);
+  if (!t || !/^[a-f0-9-]{36}$/.test(t)) { t = crypto.randomUUID(); localStorage.setItem(DEVICE_KEY, t); }
+  return t;
+}
 
 export function JoinDialog({ open, onOpenChange, onJoined }: { open: boolean; onOpenChange: (o: boolean) => void; onJoined: () => void }) {
   const [name, setName] = useState("");
   const [adult, setAdult] = useState(false);
   const [privacy, setPrivacy] = useState(false);
   const [busy, setBusy] = useState(false);
+  const register = useServerFn(registerGuestDevice);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -29,6 +39,7 @@ export function JoinDialog({ open, onOpenChange, onJoined }: { open: boolean; on
       }
       const { error } = await supabase.from("profiles").insert({ id: session!.user.id, username });
       if (error && error.code !== "23505") throw error;
+      if (!error) await register({ data: { token: deviceToken() } }).catch(() => undefined);
       toast.success(`Welcome, ${username}!`);
       onJoined();
       onOpenChange(false);

@@ -16,6 +16,8 @@ import { getRecommendations } from "@/lib/catalog.functions";
 import { titleKey } from "@/lib/recommendations";
 import { TitleRatingDialog } from "@/components/kolli/TitleRatingDialog";
 import { InstallApp } from "@/components/kolli/InstallApp";
+import { Inbox } from "@/components/kolli/Inbox";
+import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/")({
   loader: ({ context }) => context.queryClient.ensureQueryData(catalogOptions()),
@@ -43,14 +45,22 @@ function Home() {
   const [accountOpen, setAccountOpen] = useState(false);
   const [pending, setPending] = useState<Title | null>(null);
   const [queued, setQueued] = useState<Title | null>(null);
-  const [view, setView] = useState<"discover" | "for-you">("discover");
+  const [view, setView] = useState<"discover" | "for-you" | "live">("discover");
   const [ratingTitle, setRatingTitle] = useState<Title | null>(null);
   const [pendingRating, setPendingRating] = useState<Title | null>(null);
   const { data: catalog } = useSuspenseQuery(catalogOptions(submitted, type));
   const recommendationFn = useServerFn(getRecommendations);
   const client = useQueryClient();
   const recommendations = useQuery({ queryKey: ["recommendations", profile?.id], queryFn: () => recommendationFn(), enabled: !!profile, staleTime: 60000 });
-  const results = view === "for-you" && !submitted ? (recommendations.data?.titles ?? []).filter((t) => type === "both" || t.type === type) : catalog.titles;
+  const liveEvents = useQuery({
+    queryKey: ["live-events-public"], enabled: view === "live", staleTime: 60000,
+    queryFn: async () => {
+      const { data, error } = await supabase.from("live_events").select("*").gt("ends_at", new Date().toISOString()).order("starts_at");
+      if (error) throw new Error("Could not load live events");
+      return (data ?? []).map((e): Title => ({ id: e.id, type: "event", title: e.title, poster: e.poster_url ?? "", year: new Date(e.starts_at).toLocaleString([], { weekday: "short", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }), rating: "", description: e.description, category: e.category as "sports" | "esports" | "reality", startsAt: e.starts_at }));
+    },
+  });
+  const results = view === "live" ? (liveEvents.data ?? []) : view === "for-you" && !submitted ? (recommendations.data?.titles ?? []).filter((t) => type === "both" || t.type === type) : catalog.titles;
   const titleRatings = new Map((recommendations.data?.ratings ?? []).map((r) => [`${r.content_type}:${r.content_id}`, r.stars]));
 
   function openRating(t: Title) {
@@ -75,6 +85,7 @@ function Home() {
         </div>
         <div className="flex items-center gap-5">
           <InstallApp />
+          {profile && <Inbox userId={profile.id} />}
           <span className="hidden items-center gap-2 text-xs text-muted-foreground lg:flex">
             <span className="size-2 rounded-full bg-success" /> Your next watch buddy is out there
           </span>
@@ -139,8 +150,9 @@ function Home() {
           <div className="mt-6 flex gap-2" role="group" aria-label="Discovery view">
             <Button variant={view === "discover" ? "default" : "outline"} size="sm" onClick={() => setView("discover")}>Trending</Button>
             <Button variant={view === "for-you" ? "default" : "outline"} size="sm" onClick={() => { setView("for-you"); setSubmitted(""); setQuery(""); }}>For you</Button>
+            <Button variant={view === "live" ? "default" : "outline"} size="sm" onClick={() => { setView("live"); setSubmitted(""); setQuery(""); }}>Live events</Button>
           </div>
-          {view === "for-you" && !profile ? <div className="py-10"><Button onClick={() => setJoinOpen(true)}>Join for personal recommendations ↗</Button></div> : view === "for-you" && recommendations.isPending ? <div className="flex items-center gap-2 py-10 text-muted-foreground"><LoaderCircle className="size-5 animate-spin" />Finding your picks…</div> : catalog.error || (view === "for-you" && recommendations.error) ? <div className="py-10 text-destructive"><p>{catalog.error ?? recommendations.error?.message}</p><Button variant="outline" className="mt-3" onClick={() => { void client.invalidateQueries({ queryKey: ["catalog"] }); void recommendations.refetch(); }}>Try again</Button></div> : results.length === 0 ? (
+          {view === "live" && liveEvents.isPending ? <div className="flex items-center gap-2 py-10 text-muted-foreground"><LoaderCircle className="size-5 animate-spin" />Loading live events…</div> : view === "live" && results.length === 0 ? <div className="py-12 text-center text-muted-foreground"><h3 className="font-display text-lg font-semibold text-foreground">No live events scheduled</h3><p className="text-sm">Big games, esports finals and reality finales will show up here.</p></div> : view === "for-you" && !profile ? <div className="py-10"><Button onClick={() => setJoinOpen(true)}>Join for personal recommendations ↗</Button></div> : view === "for-you" && recommendations.isPending ? <div className="flex items-center gap-2 py-10 text-muted-foreground"><LoaderCircle className="size-5 animate-spin" />Finding your picks…</div> : view !== "live" && (catalog.error || (view === "for-you" && recommendations.error)) ? <div className="py-10 text-destructive"><p>{catalog.error ?? recommendations.error?.message}</p><Button variant="outline" className="mt-3" onClick={() => { void client.invalidateQueries({ queryKey: ["catalog"] }); void recommendations.refetch(); }}>Try again</Button></div> : results.length === 0 ? (
             <div className="py-12 text-center text-muted-foreground">
               <h3 className="font-display text-lg font-semibold text-foreground">No titles found just yet</h3>
               <p className="text-sm">Try another title, or search for a movie or show you already love.</p>
@@ -153,15 +165,15 @@ function Home() {
                   <div className="relative isolate overflow-hidden rounded-md bg-muted">
                     <img src={t.poster} alt="" loading="lazy" onError={(e) => { e.currentTarget.style.visibility = "hidden"; }} className="relative z-10 aspect-[2/3] w-full object-cover transition-transform group-hover:scale-105" />
                     <span className="absolute inset-0 -z-0 grid place-items-center p-4 text-center font-display text-sm font-bold text-muted-foreground">{t.title}</span>
-                    <span className="absolute left-2 top-2 z-20 rounded bg-ink-panel/85 px-2 py-1 text-[10px] font-bold text-ink-panel-foreground"><span className="text-star">★</span> {t.rating} <span className="font-normal">TMDB</span></span>
+                    {t.type === "event" ? <span className="absolute left-2 top-2 z-20 rounded bg-accent px-2 py-1 text-[10px] font-bold uppercase text-accent-foreground">● Live · {t.category}</span> : <span className="absolute left-2 top-2 z-20 rounded bg-ink-panel/85 px-2 py-1 text-[10px] font-bold text-ink-panel-foreground"><span className="text-star">★</span> {t.rating} <span className="font-normal">TMDB</span></span>}
                   </div>
                   </Button>
                   <p className="mt-3 truncate font-display text-sm font-semibold">{t.title}</p>
-                  <p className="flex justify-between text-[11px] text-muted-foreground"><span>{t.year}</span><span>{t.type === "tv" ? "TV" : "Movie"}</span></p>
+                  <p className="flex justify-between text-[11px] text-muted-foreground"><span>{t.year}</span><span>{t.type === "event" ? "Live" : t.type === "tv" ? "TV" : "Movie"}</span></p>
                   {t.reason && view === "for-you" && <p className="mt-1 text-[11px] text-muted-foreground">{t.reason}</p>}
                   <div className="mt-2 flex flex-wrap items-center gap-1">
                     <Button variant="ghost" size="sm" className="h-8 px-0 text-[11px] text-accent" onClick={() => pick(t)}>Find a match ↗</Button>
-                    <Button variant="ghost" size="sm" className="h-8 px-2 text-[11px]" aria-label={`Rate ${t.title}`} onClick={() => openRating(t)}><Star className="size-3 text-star" />{titleRatings.get(titleKey(t)) ? `${titleRatings.get(titleKey(t))}/5` : "Rate"}</Button>
+                    {t.type !== "event" && <Button variant="ghost" size="sm" className="h-8 px-2 text-[11px]" aria-label={`Rate ${t.title}`} onClick={() => openRating(t)}><Star className="size-3 text-star" />{titleRatings.get(titleKey(t)) ? `${titleRatings.get(titleKey(t))}/5` : "Rate"}</Button>}
                   </div>
                 </article>
               ))}

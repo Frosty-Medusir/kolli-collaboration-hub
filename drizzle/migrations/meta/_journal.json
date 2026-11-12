@@ -64,6 +64,13 @@
       "when": 1794493044288,
       "tag": "0008_admin_conduct_moderation",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1794495050412,
+      "tag": "0009_vibes_later_queue_endorsements_events_safety",
+      "breakpoints": true
     }
   ]
 }

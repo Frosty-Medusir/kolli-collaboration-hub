@@ -45,3 +45,7 @@ use the editor.
 - Moderation reports and ban changes use admin-checked SQL functions; database triggers block banned users from matching and chat, preserving enforcement against direct writes.
 - Phone installation is manifest-only, with icons derived from the existing brand asset; no app-shell service worker or offline cache, so previews and returning visitors stay current.
 - Share one branded loading screen between router pending state and the hydration-safe startup overlay; dismiss startup on page load and respect reduced motion.
+- Vibe compatibility, watch-later pickup, endorsements, Teleparty links and live-event matching run in security-definer SQL (find_match, queue_for_later, endorse_partner, set_teleparty_link); join_queue forwards to find_match so old clients cannot bypass rules. Keep src/lib/vibes.ts in sync with the SQL conflict pairs.
+- Match alerts are in-app notifications written only by matching functions; email alerts wait on a verified sender domain.
+- Guest IP logs and hashed browser tokens are server-only (service role); shadow_flags silently exclude a user from matching and are never readable by clients, so evaders can't detect them.
+- Icebreakers are written once per match by an authenticated server function using TMDB (or the admin event description) via the admin client after verifying membership through RLS.

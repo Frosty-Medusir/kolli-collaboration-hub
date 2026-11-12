@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { BADGES } from "@/lib/vibes";
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -10,18 +12,22 @@ import { RankingControls } from "./RankingControls";
 export function AccountDialog({ open, onOpenChange, profile }: { open: boolean; onOpenChange: (o: boolean) => void; profile: Profile | null }) {
   const [confirming, setConfirming] = useState(false);
   const [busy, setBusy] = useState(false);
+  const badges = useQuery({ queryKey: ["my-badges", profile?.id], enabled: open && !!profile, queryFn: async () => ((await supabase.rpc("my_badges")).data ?? {}) as Record<string, number> });
 
   async function exportData() {
     if (!profile) return;
     const uid = profile.id;
-    const [matches, ratings, titleRatings] = await Promise.all([
+    const [matches, ratings, titleRatings, saved, alerts, given] = await Promise.all([
       supabase.from("matches").select("*").or(`user1.eq.${uid},user2.eq.${uid}`),
       supabase.from("ratings").select("*"),
       supabase.from("title_ratings").select("*").eq("user_id", uid),
+      supabase.from("watch_requests").select("*").eq("user_id", uid),
+      supabase.from("notifications").select("*").eq("user_id", uid),
+      supabase.from("endorsements").select("*").eq("from_user", uid),
     ]);
     const ids = (matches.data ?? []).map((m) => m.id);
     const messages = ids.length ? await supabase.from("messages").select("*").in("match_id", ids) : { data: [] };
-    const blob = new Blob([JSON.stringify({ exportedAt: new Date().toISOString(), profile, matches: matches.data, messages: messages.data, ratings: ratings.data, titleRatings: titleRatings.data }, null, 2)], { type: "application/json" });
+    const blob = new Blob([JSON.stringify({ exportedAt: new Date().toISOString(), profile, matches: matches.data, messages: messages.data, ratings: ratings.data, titleRatings: titleRatings.data, savedForLater: saved.data, alerts: alerts.data, endorsementsGiven: given.data, endorsementsReceived: badges.data, browserToken: localStorage.getItem("kolli_device_token") }, null, 2)], { type: "application/json" });
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
     a.download = "kolli-data.json";
@@ -53,6 +59,9 @@ export function AccountDialog({ open, onOpenChange, profile }: { open: boolean; 
             {profile && profile.total_ratings_received > 0 ? ` · ★ ${Number(profile.average_rating).toFixed(1)} from ${profile.total_ratings_received}` : ""}
           </DialogDescription>
         </DialogHeader>
+        <div className="flex flex-wrap gap-2" aria-label="Your badges">
+          {BADGES.map((b) => <span key={b.id} className="rounded-full border bg-card px-3 py-1 text-xs"><strong>{badges.data?.[b.id] ?? 0}</strong> {b.label}</span>)}
+        </div>
         <div className="grid gap-2">
           <Button variant="outline" onClick={exportData}>Download my data</Button>
           <Button variant="outline" onClick={() => supabase.auth.signOut().then(() => onOpenChange(false))}>Sign out</Button>

@@ -5,7 +5,9 @@ export type Title = {
   year: string;
   rating: string;
   description: string;
-  type: "movie" | "tv";
+  type: "movie" | "tv" | "event";
+  category?: "sports" | "esports" | "reality";
+  startsAt?: string;
   genreIds?: number[];
   voteCount?: number;
   popularity?: number;
