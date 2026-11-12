@@ -26,6 +26,7 @@ export type Database = {
           kosmi_room_url: string | null
           poster_url: string | null
           release_year: number | null
+          room_id: string
           status: string
           user1: string
           user2: string
@@ -41,6 +42,7 @@ export type Database = {
           kosmi_room_url?: string | null
           poster_url?: string | null
           release_year?: number | null
+          room_id?: string
           status?: string
           user1: string
           user2: string
@@ -56,6 +58,7 @@ export type Database = {
           kosmi_room_url?: string | null
           poster_url?: string | null
           release_year?: number | null
+          room_id?: string
           status?: string
           user1?: string
           user2?: string

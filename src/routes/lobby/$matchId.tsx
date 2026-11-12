@@ -10,6 +10,8 @@ import type { Tables } from "@/integrations/supabase/types";
 import { useKolliSession } from "@/hooks/use-kolli-session";
 import { isKosmiUrl } from "@/lib/titles";
 import { cn } from "@/lib/utils";
+import { Copy, LockKeyhole } from "lucide-react";
+import { roomInviteUrl } from "@/lib/rooms";
 
 export const Route = createFileRoute("/lobby/$matchId")({
   head: () => ({
@@ -109,6 +111,15 @@ function Lobby() {
     setMatch((m) => (m ? { ...m, status: "ended" } : m));
   }
 
+  async function copyRoom() {
+    try {
+      await navigator.clipboard.writeText(roomInviteUrl(window.location.origin, matchId));
+      toast.success("Kolli room link copied");
+    } catch {
+      toast.error("Could not copy the room link");
+    }
+  }
+
   if (ready && !userId) return <Centered title="Join Kolli first" body="Sign in as a guest from the home page to see your lobby." />;
   if (missing) return <Centered title="Lobby not found" body="This watch party has expired or isn't yours." />;
   if (!match) return <Centered title="Loading your lobby…" body="" />;
@@ -136,9 +147,17 @@ function Lobby() {
             <AfterParty matchId={matchId} partnerId={partnerId} partnerName={partnerName} onDone={() => navigate({ to: "/" })} />
           ) : (
             <>
-              <form onSubmit={saveRoom} className="mt-8 rounded-md border bg-card p-4">
+              <div className="mt-8 flex flex-wrap items-center justify-between gap-4 border-y py-5">
+                <div>
+                  <h2 className="flex items-center gap-2 font-display text-lg font-bold"><LockKeyhole className="size-4 text-accent" />Kolli room</h2>
+                  <p className="mt-1 text-sm text-muted-foreground">Room {match.room_id.slice(0, 8)} · You and {partnerName}</p>
+                  <p className="mt-1 text-xs text-muted-foreground">Created automatically · Private to this match</p>
+                </div>
+                <Button variant="outline" onClick={copyRoom}><Copy className="size-4" />Copy room link</Button>
+              </div>
+              <form onSubmit={saveRoom} className="mt-6 border-b pb-5">
                 <label className="text-sm font-semibold" htmlFor="kosmi">Kosmi room invite link</label>
-                <p className="mb-3 text-xs text-muted-foreground">Create a room on <a className="underline" href="https://kosmi.io" target="_blank" rel="noreferrer">kosmi.io</a>, then paste its invite link. Both of you will see it.</p>
+                <p className="mb-3 text-xs text-muted-foreground">Optional for video: <a className="underline" href="https://app.kosmi.io" target="_blank" rel="noreferrer">open Kosmi ↗</a></p>
                 <div className="flex gap-2">
                   <Input id="kosmi" value={room} onChange={(e) => setRoom(e.target.value)} placeholder="https://app.kosmi.io/room/..." className="bg-background" />
                   <Button type="submit">Share</Button>
@@ -197,7 +216,8 @@ function AfterParty({ matchId, partnerId, partnerName, onDone }: { matchId: stri
     e.preventDefault();
     if (!partnerId) return;
     const { data: { user } } = await supabase.auth.getUser();
-    const { error } = await supabase.from("reports").insert({ reported_user: partnerId, reported_by: user!.id, match_id: matchId, reason, description: details.slice(0, 1000) || null });
+    if (!user) return void toast.error("Join Kolli before sending a report");
+    const { error } = await supabase.from("reports").insert({ reported_user: partnerId, reported_by: user.id, match_id: matchId, reason, description: details.slice(0, 1000) || null });
     if (error) return void toast.error("Could not send report");
     setReporting(false);
     toast.success("Report sent. Thank you for keeping Kolli safe.");
