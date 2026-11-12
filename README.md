@@ -1,29 +1,37 @@
-# Welcome to your Lovable project
+# Kolli
 
-This project was built with [Lovable](https://lovable.dev).
+Find someone watching the same thing, then watch it together.
 
-## Build with Lovable
+A guest picks a display name, confirms they are 18+, and chooses a title. If
+someone else picks the same title within 5 minutes, both are paired into a
+lobby with live chat and a shared Kosmi room link.
 
-Open your project in the [Lovable editor](https://lovable.dev) and keep building.
-
-- **Ship faster**: describe what you want to build and Lovable handles the code.
-- **Stay in sync**: connect the project to GitHub and every change made in Lovable is committed straight to your repository.
-- **Full ownership**: this code is yours. Push to your repository and your changes sync back into Lovable, ready for your next prompt.
-
-## Development
-
-Prefer working locally? You need Node.js and npm — [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
+## Run it
 
 ```sh
-git clone <this-repository-url>
-cd <repository-name>
-npm i
+npm install
 npm run dev
 ```
 
+Open http://localhost:8080
+
+## Pages
+
+| Path | What it is |
+| --- | --- |
+| `/` | Join, pick a title, wait for a match |
+| `/lobby/$matchId` | Chat and shared room for a match |
+| `/privacy` | Privacy notice |
+
+## Commands
+
+| Command | Does |
+| --- | --- |
+| `npm run dev` | Start the dev server |
+| `npm run build` | Build for production |
+| `npm run test` | Run tests |
+| `npm run lint` | Check code style |
+
 ## Built with
 
-- TanStack Start
-- TypeScript
-- React
-- Tailwind CSS
+TanStack Start, TypeScript, React, Tailwind CSS, Lovable Cloud.
