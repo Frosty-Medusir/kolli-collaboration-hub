@@ -13,7 +13,7 @@
 - [x] Set Kodovoz Labs operator contact and copyright.
 - [x] Complete operator postal address: Brookside DR, Westlands 0800.
 - [x] Add email/password admin sign-in and verified-owner role provisioning.
-- [ ] Activate permanent admin: owner must create and confirm 24otienojoseph@gmail.com via /admin; the previously shared password is not stored or reused.
+- [ ] Activate permanent admin: owner must sign in at /admin with the confirmed owner email (stored privately in the backend); the previously shared password is not stored or reused.
 - [ ] Launch: waiting for owner email confirmation and authenticated owner verification.
 - [x] Create an admin page with secured recommendation controls and an account-menu link; verified access denial, admin save/reload and mobile layout.
 - [x] Deliver brief version 1 release notes.

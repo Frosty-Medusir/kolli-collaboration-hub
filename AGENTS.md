@@ -50,3 +50,4 @@ use the editor.
 - Guest IP logs and hashed browser tokens are server-only (service role); shadow_flags silently exclude a user from matching and are never readable by clients, so evaders can't detect them.
 - Icebreakers are written once per match by an authenticated server function using TMDB (or the admin event description) via the admin client after verifying membership through RLS.
 - Live events are publicly readable only while upcoming (ends_at > now()) and only through safe column grants; created_by stays hidden, and admins read the full list via has_role.
+- Owner admin bootstrap reads the owner email from the private owner_admin_emails table (service-role only); never hardcode personal emails in code or migrations.

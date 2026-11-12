@@ -305,6 +305,18 @@ export type Database = {
         }
         Relationships: []
       }
+      owner_admin_emails: {
+        Row: {
+          email: string
+        }
+        Insert: {
+          email: string
+        }
+        Update: {
+          email?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           adult_confirmed_at: string
