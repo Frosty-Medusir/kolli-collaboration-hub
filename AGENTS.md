@@ -32,6 +32,7 @@ use the editor.
 ## Kolli
 - Matching, room links, ending sessions and ratings run as security-definer SQL functions (join_queue, queue_status, leave_queue, set_kosmi_room, end_match, rate_partner); keep these rules in the database so they stay atomic and can't be bypassed from the browser.
 - Guests sign in anonymously and create a profiles row; all app tables are locked to participants by RLS.
+- Profile reads are owner-only; lobby partner names come from match_partner_name, which verifies match membership and returns only the display name to avoid exposing another user's private profile fields.
 - Account deletion runs in a server function with the admin client, scoped to the verified caller.
 - Native Kolli rooms are created by the matches.room_id database default and use the existing lobby URL and match RLS; this makes room creation atomic and avoids public invitation access.
 - TMDB discovery uses server functions through the linked connector; use real TMDB IDs plus media type for identity so movie and TV IDs cannot collide.

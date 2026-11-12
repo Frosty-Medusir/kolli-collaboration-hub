@@ -54,9 +54,8 @@ function Lobby() {
       if (!m) return setMissing(true);
       setMatch(m);
       setRoom(m.kosmi_room_url ?? "");
-      const other = m.user1 === userId ? m.user2 : m.user1;
-      const { data: p } = await supabase.from("profiles").select("username").eq("id", other).maybeSingle();
-      if (p && alive) setPartnerName(p.username);
+      const { data: name } = await supabase.rpc("match_partner_name", { p_match: matchId });
+      if (name && alive) setPartnerName(name);
       const { data: msgs } = await supabase.from("messages").select("*").eq("match_id", matchId).order("created_at").limit(200);
       if (alive) setMessages(msgs ?? []);
     })();

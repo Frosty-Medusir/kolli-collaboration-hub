@@ -312,6 +312,7 @@ export type Database = {
         Returns: Json
       }
       leave_queue: { Args: never; Returns: undefined }
+      match_partner_name: { Args: { p_match: string }; Returns: string }
       queue_status: { Args: never; Returns: Json }
       rate_partner: {
         Args: { p_comment: string; p_match: string; p_stars: number }
