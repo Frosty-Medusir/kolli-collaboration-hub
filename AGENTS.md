@@ -28,3 +28,8 @@ use the editor.
   own key and store it in Secrets.
 - **Secrets.** Lovable manages them. Do not put secret values in the repo.
 <!-- LOVABLE:END -->
+
+## Kolli
+- Matching, room links, ending sessions and ratings run as security-definer SQL functions (join_queue, queue_status, leave_queue, set_kosmi_room, end_match, rate_partner); keep these rules in the database so they stay atomic and can't be bypassed from the browser.
+- Guests sign in anonymously and create a profiles row; all app tables are locked to participants by RLS.
+- Account deletion runs in a server function with the admin client, scoped to the verified caller.
