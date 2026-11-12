@@ -13,13 +13,14 @@ export function AccountDialog({ open, onOpenChange, profile }: { open: boolean; 
   async function exportData() {
     if (!profile) return;
     const uid = profile.id;
-    const [matches, ratings] = await Promise.all([
+    const [matches, ratings, titleRatings] = await Promise.all([
       supabase.from("matches").select("*").or(`user1.eq.${uid},user2.eq.${uid}`),
       supabase.from("ratings").select("*"),
+      supabase.from("title_ratings").select("*").eq("user_id", uid),
     ]);
     const ids = (matches.data ?? []).map((m) => m.id);
     const messages = ids.length ? await supabase.from("messages").select("*").in("match_id", ids) : { data: [] };
-    const blob = new Blob([JSON.stringify({ exportedAt: new Date().toISOString(), profile, matches: matches.data, messages: messages.data, ratings: ratings.data }, null, 2)], { type: "application/json" });
+    const blob = new Blob([JSON.stringify({ exportedAt: new Date().toISOString(), profile, matches: matches.data, messages: messages.data, ratings: ratings.data, titleRatings: titleRatings.data }, null, 2)], { type: "application/json" });
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
     a.download = "kolli-data.json";

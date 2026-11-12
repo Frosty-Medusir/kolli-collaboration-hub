@@ -34,3 +34,5 @@ use the editor.
 - Guests sign in anonymously and create a profiles row; all app tables are locked to participants by RLS.
 - Account deletion runs in a server function with the admin client, scoped to the verified caller.
 - Native Kolli rooms are created by the matches.room_id database default and use the existing lobby URL and match RLS; this makes room creation atomic and avoids public invitation access.
+- TMDB discovery uses server functions through the linked connector; use real TMDB IDs plus media type for identity so movie and TV IDs cannot collide.
+- Private title ratings use profile-scoped RLS and cascade on profile deletion; recommendations combine genre affinity, confidence-adjusted TMDB scores, related titles, and popularity while excluding rated titles.

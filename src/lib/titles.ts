@@ -6,6 +6,10 @@ export type Title = {
   rating: string;
   description: string;
   type: "movie" | "tv";
+  genreIds?: number[];
+  voteCount?: number;
+  popularity?: number;
+  reason?: string;
 };
 
 // Built-in sample titles (the original app used these when no TMDB key was set).

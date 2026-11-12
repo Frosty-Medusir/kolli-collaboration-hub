@@ -257,6 +257,44 @@ export type Database = {
           },
         ]
       }
+      title_ratings: {
+        Row: {
+          content_id: number
+          content_title: string
+          content_type: string
+          genre_ids: number[]
+          stars: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          content_id: number
+          content_title: string
+          content_type: string
+          genre_ids?: number[]
+          stars: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          content_id?: number
+          content_title?: string
+          content_type?: string
+          genre_ids?: number[]
+          stars?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "title_ratings_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never

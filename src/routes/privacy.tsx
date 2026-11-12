@@ -23,6 +23,7 @@ const SECTIONS: [string, string[]][] = [
     "Watch activity: titles selected, match participants, session dates/status, Kosmi invite link, and party count. We use these to find a match, operate the shared room flow, and support feedback.",
     "Messages: chat text and sender details are stored to deliver chat.",
     "Ratings and reports: ratings, optional comments, and any safety reports you submit are used for community safety, feedback, and moderation.",
+    "Title ratings: your private movie and TV ratings and their genres are used to personalize recommendations. Catalog details and community scores come from TMDB; Kolli does not send your display name or private ratings to TMDB.",
     "Technical data: standard server logs and request metadata may be processed to operate, secure, and troubleshoot the service.",
     "Do not put sensitive personal information (including health, biometrics, identity numbers, location, or financial details) in your display name, chat, or rating.",
   ]],

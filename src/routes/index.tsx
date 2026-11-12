@@ -1,15 +1,23 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useState } from "react";
+import { useQuery, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
+import { Star, LoaderCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Brand, Eyebrow, Footer } from "@/components/kolli/Brand";
 import { JoinDialog } from "@/components/kolli/JoinDialog";
 import { QueueDialog } from "@/components/kolli/QueueDialog";
 import { AccountDialog } from "@/components/kolli/AccountDialog";
 import { useKolliSession } from "@/hooks/use-kolli-session";
-import { searchTitles, type Title, type TypeFilter } from "@/lib/titles";
+import { type Title, type TypeFilter } from "@/lib/titles";
 import { cn } from "@/lib/utils";
+import { catalogOptions } from "@/lib/catalog-query";
+import { getRecommendations } from "@/lib/catalog.functions";
+import { titleKey } from "@/lib/recommendations";
+import { TitleRatingDialog } from "@/components/kolli/TitleRatingDialog";
 
 export const Route = createFileRoute("/")({
+  loader: ({ context }) => context.queryClient.ensureQueryData(catalogOptions()),
   head: () => ({
     meta: [
       { title: "Kolli — Watch together" },
@@ -32,7 +40,20 @@ function Home() {
   const [accountOpen, setAccountOpen] = useState(false);
   const [pending, setPending] = useState<Title | null>(null);
   const [queued, setQueued] = useState<Title | null>(null);
-  const results = useMemo(() => searchTitles(submitted, type), [submitted, type]);
+  const [view, setView] = useState<"discover" | "for-you">("discover");
+  const [ratingTitle, setRatingTitle] = useState<Title | null>(null);
+  const [pendingRating, setPendingRating] = useState<Title | null>(null);
+  const { data: catalog } = useSuspenseQuery(catalogOptions(submitted, type));
+  const recommendationFn = useServerFn(getRecommendations);
+  const client = useQueryClient();
+  const recommendations = useQuery({ queryKey: ["recommendations", profile?.id], queryFn: () => recommendationFn(), enabled: !!profile, staleTime: 60000 });
+  const results = view === "for-you" && !submitted ? (recommendations.data?.titles ?? []).filter((t) => type === "both" || t.type === type) : catalog.titles;
+  const titleRatings = new Map((recommendations.data?.ratings ?? []).map((r) => [`${r.content_type}:${r.content_id}`, r.stars]));
+
+  function openRating(t: Title) {
+    if (!profile) { setPendingRating(t); setJoinOpen(true); return; }
+    setRatingTitle(t);
+  }
 
   function pick(t: Title) {
     if (!profile) { setPending(t); setJoinOpen(true); return; }
@@ -75,7 +96,7 @@ function Home() {
             <form onSubmit={(e) => { e.preventDefault(); setSubmitted(query); document.getElementById("picks")?.scrollIntoView(); }} className="mt-8 flex max-w-xl items-center gap-2 rounded-md border bg-card p-2 shadow-sm">
               <span className="pl-2 text-muted-foreground" aria-hidden>⌕</span>
               <input value={query} onChange={(e) => setQuery(e.target.value)} type="search" placeholder="Search a movie or show..." aria-label="Search movies and shows" className="min-w-0 flex-1 bg-transparent py-2 text-sm outline-none" />
-              <Button type="submit" variant="destructive">Find a match ↗</Button>
+              <Button type="submit" variant="destructive">Search ↗</Button>
             </form>
             <div className="mt-4 flex gap-1" role="group" aria-label="Search type">
               {(["both", "movie", "tv"] as const).map((t) => (
@@ -105,13 +126,17 @@ function Home() {
           <div className="mt-4 flex flex-wrap items-end justify-between gap-4">
             <div>
               <h2 className="font-display text-4xl font-bold tracking-tight">
-                {submitted ? <>Results for “{submitted}”</> : <>Something good is <span className="font-serif font-normal italic text-accent">on.</span></>}
+                {submitted ? <>Results for “{submitted}”</> : view === "for-you" ? <>Picked for <span className="font-serif font-normal italic text-accent">you.</span></> : <>Something good is <span className="font-serif font-normal italic text-accent">on.</span></>}
               </h2>
               <p className="mt-2 text-sm text-muted-foreground">Pick a title. We’ll find someone who loves it too.</p>
             </div>
             {submitted && <button className="text-sm font-semibold" onClick={() => { setSubmitted(""); setQuery(""); }}>Explore all ↗</button>}
           </div>
-          {results.length === 0 ? (
+          <div className="mt-6 flex gap-2" role="group" aria-label="Discovery view">
+            <Button variant={view === "discover" ? "default" : "outline"} size="sm" onClick={() => setView("discover")}>Trending</Button>
+            <Button variant={view === "for-you" ? "default" : "outline"} size="sm" onClick={() => { setView("for-you"); setSubmitted(""); setQuery(""); }}>For you</Button>
+          </div>
+          {view === "for-you" && !profile ? <div className="py-10"><Button onClick={() => setJoinOpen(true)}>Join for personal recommendations ↗</Button></div> : view === "for-you" && recommendations.isPending ? <div className="flex items-center gap-2 py-10 text-muted-foreground"><LoaderCircle className="size-5 animate-spin" />Finding your picks…</div> : catalog.error || (view === "for-you" && recommendations.error) ? <div className="py-10 text-destructive"><p>{catalog.error ?? recommendations.error?.message}</p><Button variant="outline" className="mt-3" onClick={() => { void client.invalidateQueries({ queryKey: ["catalog"] }); void recommendations.refetch(); }}>Try again</Button></div> : results.length === 0 ? (
             <div className="py-12 text-center text-muted-foreground">
               <h3 className="font-display text-lg font-semibold text-foreground">No titles found just yet</h3>
               <p className="text-sm">Try another title, or search for a movie or show you already love.</p>
@@ -119,19 +144,26 @@ function Home() {
           ) : (
             <div className="mt-8 grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-5">
               {results.map((t) => (
-                <button key={t.id} onClick={() => pick(t)} className="group text-left">
+                <article key={titleKey(t)} className="group min-w-0 text-left">
+                  <Button variant="ghost" onClick={() => pick(t)} aria-label={`Find a match for ${t.title}`} className="block h-auto w-full p-0 hover:bg-transparent">
                   <div className="relative isolate overflow-hidden rounded-md bg-muted">
                     <img src={t.poster} alt="" loading="lazy" onError={(e) => { e.currentTarget.style.visibility = "hidden"; }} className="relative z-10 aspect-[2/3] w-full object-cover transition-transform group-hover:scale-105" />
                     <span className="absolute inset-0 -z-0 grid place-items-center p-4 text-center font-display text-sm font-bold text-muted-foreground">{t.title}</span>
-                    <span className="absolute left-2 top-2 z-20 rounded bg-ink-panel/85 px-2 py-1 text-[10px] font-bold text-ink-panel-foreground"><span className="text-star">★</span> {t.rating}</span>
+                    <span className="absolute left-2 top-2 z-20 rounded bg-ink-panel/85 px-2 py-1 text-[10px] font-bold text-ink-panel-foreground"><span className="text-star">★</span> {t.rating} <span className="font-normal">TMDB</span></span>
                   </div>
+                  </Button>
                   <p className="mt-3 truncate font-display text-sm font-semibold">{t.title}</p>
                   <p className="flex justify-between text-[11px] text-muted-foreground"><span>{t.year}</span><span>{t.type === "tv" ? "TV" : "Movie"}</span></p>
-                  <p className="mt-2 text-[11px] font-bold text-accent">Find a match ↗</p>
-                </button>
+                  {t.reason && view === "for-you" && <p className="mt-1 text-[11px] text-muted-foreground">{t.reason}</p>}
+                  <div className="mt-2 flex flex-wrap items-center gap-1">
+                    <Button variant="ghost" size="sm" className="h-8 px-0 text-[11px] text-accent" onClick={() => pick(t)}>Find a match ↗</Button>
+                    <Button variant="ghost" size="sm" className="h-8 px-2 text-[11px]" aria-label={`Rate ${t.title}`} onClick={() => openRating(t)}><Star className="size-3 text-star" />{titleRatings.get(titleKey(t)) ? `${titleRatings.get(titleKey(t))}/5` : "Rate"}</Button>
+                  </div>
+                </article>
               ))}
             </div>
           )}
+          <p className="mt-8 text-xs text-muted-foreground"><a href="https://www.themoviedb.org" target="_blank" rel="noreferrer" className="font-semibold underline">TMDB</a> · This product uses the TMDB API but is not endorsed or certified by TMDB.</p>
         </section>
 
         <section id="how-it-works" className="grid items-center gap-10 bg-muted px-[7%] py-20 lg:grid-cols-[0.8fr_1.2fr]">
@@ -155,7 +187,8 @@ function Home() {
       </main>
       <Footer />
 
-      <JoinDialog open={joinOpen} onOpenChange={setJoinOpen} onJoined={async () => { await refreshProfile(); if (pending) { setQueued(pending); setPending(null); } }} />
+      <JoinDialog open={joinOpen} onOpenChange={setJoinOpen} onJoined={async () => { await refreshProfile(); if (pending) { setQueued(pending); setPending(null); } if (pendingRating) { setRatingTitle(pendingRating); setPendingRating(null); } }} />
+      <TitleRatingDialog title={ratingTitle} current={ratingTitle ? titleRatings.get(titleKey(ratingTitle)) ?? 0 : 0} onClose={() => setRatingTitle(null)} onSaved={() => { void client.invalidateQueries({ queryKey: ["recommendations"] }); }} />
       <AccountDialog open={accountOpen} onOpenChange={setAccountOpen} profile={profile} />
       <QueueDialog title={queued} onClose={() => setQueued(null)} />
     </div>

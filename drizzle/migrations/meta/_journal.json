@@ -15,6 +15,13 @@
       "when": 1794488320701,
       "tag": "0001_automatic_kolli_rooms",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1794488668564,
+      "tag": "0002_personal_title_ratings",
+      "breakpoints": true
     }
   ]
 }
