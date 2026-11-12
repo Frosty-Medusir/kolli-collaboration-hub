@@ -41,3 +41,4 @@ use the editor.
 - Recommendation weights and the negative-affinity filter use shared validated settings; only server-verified roles in user_roles may change them, with RLS as a second boundary. Never assign roles from display names or client metadata.
 - The public /admin shell exposes no private loader data; its inline access state and account-menu link use the existing authenticated ranking-settings function, and saves retain server role checks and RLS.
 - Conduct reports use report_conduct to derive both parties from verified match membership; direct inserts are revoked and reporters can read only their own submissions.
+- Permanent owner bootstrap grants the admin role only from an Auth lifecycle trigger after the configured owner email is confirmed on a non-anonymous account; the admin page uses email/password Auth, never embedded credentials.

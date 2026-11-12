@@ -16,7 +16,7 @@ export const Route = createFileRoute("/privacy")({
 });
 
 const SECTIONS: [string, string[]][] = [
-  ["1. Who is responsible?", ["Kodovoz Labs operates Kolli and is responsible for how your personal data is processed. For privacy questions and requests, contact kodovozlabs@gmail.com. The operator’s postal address has not yet been supplied and must be added before public launch. You can also contact the Office of the Data Protection Commissioner (ODPC) at odpc.go.ke."]],
+  ["1. Who is responsible?", ["Kodovoz Labs operates Kolli and is responsible for how your personal data is processed. For privacy questions and requests, contact kodovozlabs@gmail.com. Postal address: Brookside DR, Westlands 0800. You can also contact the Office of the Data Protection Commissioner (ODPC) at odpc.go.ke."]],
   ["2. Who can use Kolli?", ["Kolli is intended for adults aged 18 and over. Guest registration asks you to confirm that you are at least 18. Do not use the service if you are under 18. Kolli is not designed to collect children’s personal data."]],
   ["3. Data we process and why", [
     "Account and guest details: display name and guest/account status. We use these to sign you in and show your identity to your match.",

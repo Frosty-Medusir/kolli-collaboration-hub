@@ -50,6 +50,13 @@
       "when": 1794491430949,
       "tag": "0006_normalize_obfuscated_chat_abuse",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1794491719183,
+      "tag": "0007_verified_owner_admin_bootstrap",
+      "breakpoints": true
     }
   ]
 }

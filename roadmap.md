@@ -1,9 +1,10 @@
 # Tasks
 - [x] Add conduct reporting during active chat and strengthen obfuscated-abuse filtering; verified private report readback and Unicode/spaced abuse rejection.
 - [x] Set Kodovoz Labs operator contact and copyright.
-- [ ] Complete operator postal address: not yet supplied.
-- [ ] Set permanent admin for frostysznroot: no existing account found; secure account email and sign-in setup needed, never use a hardcoded password.
-- [ ] Launch: waiting for secure permanent admin setup and postal address.
+- [x] Complete operator postal address: Brookside DR, Westlands 0800.
+- [x] Add email/password admin sign-in and verified-owner role provisioning.
+- [ ] Activate permanent admin: owner must create and confirm 24otienojoseph@gmail.com via /admin; the previously shared password is not stored or reused.
+- [ ] Launch: waiting for owner email confirmation and authenticated owner verification.
 - [x] Create an admin page with secured recommendation controls and an account-menu link; verified access denial, admin save/reload and mobile layout.
 - [x] Deliver brief version 1 release notes.
 - [x] Enforce chat harassment and spam filtering; verified accepted and blocked messages, direct writes, duplicates and burst limits.
