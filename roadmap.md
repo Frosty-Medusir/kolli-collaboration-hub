@@ -1,4 +1,6 @@
 # Tasks
+- [x] Create an admin page with secured recommendation controls and an account-menu link; verified access denial, admin save/reload and mobile layout.
+- [x] Deliver brief version 1 release notes.
 - [x] Enforce chat harassment and spam filtering; verified accepted and blocked messages, direct writes, duplicates and burst limits.
 - [x] Add admin-adjustable rating-based recommendations; verified normal-user denial and admin save/reload.
 - [ ] Assign permanent admin: requested display name “Admin” has no matching account; verified account identity needed.

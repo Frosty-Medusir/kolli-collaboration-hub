@@ -39,3 +39,4 @@ use the editor.
 - Private title ratings use profile-scoped RLS and cascade on profile deletion; recommendations combine genre affinity, confidence-adjusted TMDB scores, related titles, and popularity while excluding rated titles.
 - Chat safety is enforced by a database insert trigger with per-sender transaction locking, so direct writes cannot bypass harassment, repetition, duplicate and burst checks.
 - Recommendation weights and the negative-affinity filter use shared validated settings; only server-verified roles in user_roles may change them, with RLS as a second boundary. Never assign roles from display names or client metadata.
+- The public /admin shell exposes no private loader data; its inline access state and account-menu link use the existing authenticated ranking-settings function, and saves retain server role checks and RLS.
