@@ -35,3 +35,5 @@ Open http://localhost:8080
 ## Built with
 
 TanStack Start, TypeScript, React, Tailwind CSS, Lovable Cloud.
+
+:)
