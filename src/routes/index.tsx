@@ -75,7 +75,7 @@ function Home() {
 
   return (
     <div className="min-h-screen">
-      <header className="flex h-20 items-center justify-between border-b border-foreground/10 px-[7%]">
+      <header className="flex h-16 items-center justify-between gap-3 border-b border-foreground/10 px-4 sm:h-20 sm:px-[7%]">
         <div className="flex items-center gap-10">
           <Brand />
           <nav className="hidden gap-9 text-sm text-muted-foreground md:flex">
@@ -83,7 +83,7 @@ function Home() {
             <a href="#how-it-works" className="hover:text-foreground">How it works</a>
           </nav>
         </div>
-        <div className="flex items-center gap-5">
+        <div className="flex shrink-0 items-center gap-2 sm:gap-5">
           <InstallApp />
           {profile && <Inbox userId={profile.id} />}
           <span className="hidden items-center gap-2 text-xs text-muted-foreground lg:flex">
@@ -92,7 +92,7 @@ function Home() {
           {ready && (profile ? (
             <button onClick={() => setAccountOpen(true)} className="flex items-center gap-2 rounded-full border bg-card py-1 pl-1 pr-3 text-sm" aria-label="Account and privacy">
               <span className="grid size-7 place-items-center rounded-full bg-accent font-bold text-accent-foreground">{profile.username[0]?.toUpperCase()}</span>
-              {profile.username} <span aria-hidden>⚙</span>
+              <span className="hidden max-w-28 truncate sm:inline">{profile.username}</span> <span aria-hidden>⚙</span>
             </button>
           ) : (
             <Button size="sm" onClick={() => setJoinOpen(true)}>Join to match ↗</Button>
@@ -101,10 +101,10 @@ function Home() {
       </header>
 
       <main>
-        <section id="discover" className="relative grid items-center gap-12 px-[7%] py-16 lg:grid-cols-[1.1fr_0.9fr] lg:py-24">
+        <section id="discover" className="relative grid items-center gap-12 px-4 py-10 sm:px-[7%] sm:py-16 lg:grid-cols-[1.1fr_0.9fr] lg:py-24">
           <div>
             <Eyebrow>GOOD MOVIES. BETTER COMPANY.</Eyebrow>
-            <h1 className="mt-6 font-display text-6xl font-extrabold leading-[0.95] tracking-tighter sm:text-7xl">
+            <h1 className="mt-6 font-display text-5xl font-extrabold leading-[0.95] tracking-tighter sm:text-7xl">
               Find your<br />people.<br /><span className="font-serif font-normal italic text-accent">Press play.</span>
             </h1>
             <p className="mt-6 max-w-md text-muted-foreground">The best part of watching is having someone to watch with. Find your kind of movie person and make a night of it.</p>
@@ -121,9 +121,9 @@ function Home() {
               ))}
             </div>
           </div>
-          <div className="relative mx-auto h-[420px] w-full max-w-md" aria-label="Featured movies">
-            <img src="https://image.tmdb.org/t/p/w342/x2LSRK2Cm7MZhjluni1msVJ3wDF.jpg" alt="Stranger Things" className="absolute right-4 top-0 w-52 rotate-6 rounded-md shadow-xl" />
-            <div className="absolute bottom-0 left-4 w-60 -rotate-3 overflow-hidden rounded-md shadow-2xl">
+          <div className="relative mx-auto h-[340px] w-full max-w-md sm:h-[420px]" aria-label="Featured movies">
+            <img src="https://image.tmdb.org/t/p/w342/x2LSRK2Cm7MZhjluni1msVJ3wDF.jpg" alt="Stranger Things" className="absolute right-4 top-0 w-40 rotate-6 sm:w-52 rounded-md shadow-xl" />
+            <div className="absolute bottom-0 left-4 w-48 -rotate-3 sm:w-60 overflow-hidden rounded-md shadow-2xl">
               <img src="https://image.tmdb.org/t/p/w342/qWnJzyZhyy74gjpSjIXWmuk0ifX.jpg" alt="The Office" />
               <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-ink-panel to-transparent p-4 text-ink-panel-foreground">
                 <span className="text-[9px] font-bold tracking-widest text-star">TONIGHT'S PICK</span>
@@ -136,18 +136,18 @@ function Home() {
           </div>
         </section>
 
-        <section id="picks" className="px-[7%] py-16">
+        <section id="picks" className="px-4 py-12 sm:px-[7%] sm:py-16">
           <Eyebrow>A LITTLE INSPIRATION</Eyebrow>
           <div className="mt-4 flex flex-wrap items-end justify-between gap-4">
             <div>
-              <h2 className="font-display text-4xl font-bold tracking-tight">
+              <h2 className="font-display text-3xl font-bold tracking-tight sm:text-4xl">
                 {submitted ? <>Results for “{submitted}”</> : view === "for-you" ? <>Picked for <span className="font-serif font-normal italic text-accent">you.</span></> : <>Something good is <span className="font-serif font-normal italic text-accent">on.</span></>}
               </h2>
               <p className="mt-2 text-sm text-muted-foreground">Pick a title. We’ll find someone who loves it too.</p>
             </div>
             {submitted && <button className="text-sm font-semibold" onClick={() => { setSubmitted(""); setQuery(""); }}>Explore all ↗</button>}
           </div>
-          <div className="mt-6 flex gap-2" role="group" aria-label="Discovery view">
+          <div className="-mx-4 mt-6 flex gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:px-0" role="group" aria-label="Discovery view">
             <Button variant={view === "discover" ? "default" : "outline"} size="sm" onClick={() => setView("discover")}>Trending</Button>
             <Button variant={view === "for-you" ? "default" : "outline"} size="sm" onClick={() => { setView("for-you"); setSubmitted(""); setQuery(""); }}>For you</Button>
             <Button variant={view === "live" ? "default" : "outline"} size="sm" onClick={() => { setView("live"); setSubmitted(""); setQuery(""); }}>Live events</Button>
@@ -158,7 +158,7 @@ function Home() {
               <p className="text-sm">Try another title, or search for a movie or show you already love.</p>
             </div>
           ) : (
-            <div className="mt-8 grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-5">
+            <div className="mt-8 grid grid-cols-2 gap-x-3 gap-y-6 sm:gap-5 sm:grid-cols-3 lg:grid-cols-5">
               {results.map((t) => (
                 <article key={titleKey(t)} className="group min-w-0 text-left">
                   <Button variant="ghost" onClick={() => pick(t)} aria-label={`Find a match for ${t.title}`} className="block h-auto w-full p-0 hover:bg-transparent">
@@ -182,16 +182,16 @@ function Home() {
           <p className="mt-8 text-xs text-muted-foreground"><a href="https://www.themoviedb.org" target="_blank" rel="noreferrer" className="font-semibold underline">TMDB</a> · This product uses the TMDB API but is not endorsed or certified by TMDB.</p>
         </section>
 
-        <section id="how-it-works" className="grid items-center gap-10 bg-muted px-[7%] py-20 lg:grid-cols-[0.8fr_1.2fr]">
+        <section id="how-it-works" className="grid items-center gap-10 bg-muted px-4 py-14 sm:px-[7%] sm:py-20 lg:grid-cols-[0.8fr_1.2fr]">
           <div>
             <Eyebrow>IT'S A VERY GOOD PLAN</Eyebrow>
-            <h2 className="mt-4 font-display text-4xl font-bold tracking-tight">From “what should we watch?” to <span className="font-serif font-normal italic text-accent">“that was fun.”</span></h2>
+            <h2 className="mt-4 font-display text-3xl font-bold tracking-tight sm:text-4xl">From “what should we watch?” to <span className="font-serif font-normal italic text-accent">“that was fun.”</span></h2>
             <p className="mt-4 text-sm text-muted-foreground">Skip the group chat logistics. Kolli brings movie people together, one great pick at a time.</p>
             <Button className="mt-6" onClick={() => (profile ? document.getElementById("picks")?.scrollIntoView() : setJoinOpen(true))}>Find your people ↗</Button>
           </div>
           <div className="grid gap-3 sm:grid-cols-3">
             {[["01", "⌕", "Pick your pick", "Choose the film or show you’re in the mood for."], ["02", "✳", "Meet your match", "We’ll find someone who wants to watch it, too."], ["03", "▷", "Make it a night", "Say hello, share a Kosmi room, and watch together."]].map(([n, i, h, p]) => (
-              <article key={n} className="relative min-h-44 rounded border bg-background p-5">
+              <article key={n} className="relative min-h-36 rounded sm:min-h-44 border bg-background p-5">
                 <span className="absolute right-4 top-4 text-[10px] tracking-widest text-muted-foreground">{n}</span>
                 <span className="grid size-9 place-items-center rounded-full bg-accent/10 text-accent">{i}</span>
                 <h3 className="mt-6 font-display text-sm font-bold">{h}</h3>
