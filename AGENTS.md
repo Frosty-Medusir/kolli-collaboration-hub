@@ -43,3 +43,5 @@ use the editor.
 - Conduct reports use report_conduct to derive both parties from verified match membership; direct inserts are revoked and reporters can read only their own submissions.
 - Permanent owner bootstrap grants the admin role only from an Auth lifecycle trigger after the configured owner email is confirmed on a non-anonymous account; the admin page uses email/password Auth, never embedded credentials.
 - Moderation reports and ban changes use admin-checked SQL functions; database triggers block banned users from matching and chat, preserving enforcement against direct writes.
+- Phone installation is manifest-only, with icons derived from the existing brand asset; no app-shell service worker or offline cache, so previews and returning visitors stay current.
+- Share one branded loading screen between router pending state and the hydration-safe startup overlay; dismiss startup on page load and respect reduced motion.

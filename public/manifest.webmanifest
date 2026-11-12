@@ -1,0 +1,16 @@
+{
+  "id": "/",
+  "name": "Kolli — Watch together",
+  "short_name": "Kolli",
+  "description": "Find your people, pick a movie, and watch together.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f6f4ee",
+  "theme_color": "#bc292f",
+  "icons": [
+    { "src": "/icons/kolli-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/kolli-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/kolli-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

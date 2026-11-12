@@ -1,4 +1,5 @@
 # Tasks
+- [x] Add animated loading screen, matching favicon and manifest-only phone installation; verified animated startup/dismissal, reduced motion, install fallback, icon delivery, installed-state dismissal and phone layout.
 - [x] Add admin reported-user dashboard with secured ban/unban and report resolution; verified real report review, ban persistence, matching/chat denial, unban, non-admin denial and mobile layout.
 - [x] Add conduct reporting during active chat and strengthen obfuscated-abuse filtering; verified private report readback and Unicode/spaced abuse rejection.
 - [x] Set Kodovoz Labs operator contact and copyright.

@@ -15,6 +15,7 @@ import { catalogOptions } from "@/lib/catalog-query";
 import { getRecommendations } from "@/lib/catalog.functions";
 import { titleKey } from "@/lib/recommendations";
 import { TitleRatingDialog } from "@/components/kolli/TitleRatingDialog";
+import { InstallApp } from "@/components/kolli/InstallApp";
 
 export const Route = createFileRoute("/")({
   loader: ({ context }) => context.queryClient.ensureQueryData(catalogOptions()),
@@ -73,6 +74,7 @@ function Home() {
           </nav>
         </div>
         <div className="flex items-center gap-5">
+          <InstallApp />
           <span className="hidden items-center gap-2 text-xs text-muted-foreground lg:flex">
             <span className="size-2 rounded-full bg-success" /> Your next watch buddy is out there
           </span>

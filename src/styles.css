@@ -132,3 +132,16 @@
 
 html { scroll-behavior: smooth; }
 body { font-family: var(--font-sans); }
+
+@keyframes kolli-ring { to { transform: rotate(360deg); } }
+@keyframes kolli-dot { 0%, 100% { transform: translateY(0); opacity: 0.4; } 50% { transform: translateY(-5px); opacity: 1; } }
+@keyframes kolli-reveal { from { opacity: 1; } to { opacity: 0; visibility: hidden; } }
+.kolli-loading-ring { animation: kolli-ring 1.6s linear infinite; }
+.kolli-loading-dot { animation: kolli-dot 1s ease-in-out infinite; }
+.kolli-loading-dot:nth-child(2) { animation-delay: 0.15s; }
+.kolli-loading-dot:nth-child(3) { animation-delay: 0.3s; }
+.kolli-loading-leaving { pointer-events: none; animation: kolli-reveal 0.45s ease-out forwards; }
+@media (prefers-reduced-motion: reduce) {
+  .kolli-loading-ring, .kolli-loading-dot { animation: none; }
+  .kolli-loading-leaving { animation-duration: 0.01s; }
+}
