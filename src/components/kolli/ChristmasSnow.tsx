@@ -6,10 +6,14 @@ const SnowClimber = lazy(() => import("./SnowClimber"));
 
 export function ChristmasSnow() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const letterRef = useRef<HTMLCanvasElement>(null);
   useEffect(() => {
     const canvas = canvasRef.current;
     const context = canvas?.getContext("2d");
-    if (!canvas || !context) return;
+    // Letter snow lives on a page-anchored layer so it scrolls natively with the letters (no lag).
+    const letterCanvas = letterRef.current;
+    const letterContext = letterCanvas?.getContext("2d");
+    if (!canvas || !context || !letterCanvas || !letterContext) return;
     const motion = window.matchMedia("(prefers-reduced-motion: reduce)");
     let frame = 0;
     let width = 0;
@@ -32,10 +36,16 @@ export function ChristmasSnow() {
     const edge = colors.getPropertyValue("--snow-edge").trim();
     const contours = new Map<HTMLElement, { x: number; y: number }[]>();
     let surfaces: HTMLElement[] = [];
+    let headlineSurfaces: number[] = [];
+    let pageRects: { x: number; y: number }[] = [];
+    let layerWidth = 0;
+    let layerHeight = 0;
     const measure = () => {
       surfaces = Array.from(document.querySelectorAll<HTMLElement>("header .snow-logo, header .snow-letter, .snow-headline .snow-letter"));
       christmasScene.surfaces = surfaces.map((el, i) => {
-        const r = el.getBoundingClientRect();
+        const viewportRect = el.getBoundingClientRect();
+        // Page coordinates: independent of scroll position.
+        const r = { x: viewportRect.x + window.scrollX, y: viewportRect.y + window.scrollY, width: viewportRect.width, height: viewportRect.height };
         const style = getComputedStyle(el);
         const font = parseFloat(style.fontSize);
         if (!el.classList.contains("snow-logo")) {
@@ -60,19 +70,35 @@ export function ChristmasSnow() {
         }
         return { x: r.x, y: r.y + (el.classList.contains("snow-logo") ? 0 : font * 0.16), width: r.width, depth: christmasScene.surfaces[i]?.depth ?? 3.5 };
       });
+      pageRects = christmasScene.surfaces.map((_, i) => {
+        const r = surfaces[i]!.getBoundingClientRect();
+        return { x: r.x + window.scrollX, y: r.y + window.scrollY };
+      });
+      headlineSurfaces = surfaces.flatMap((el, i) => (el.closest(".snow-headline") ? [i] : []));
+      const scale = Math.min(window.devicePixelRatio || 1, 2);
+      layerWidth = document.documentElement.clientWidth;
+      layerHeight = Math.ceil(Math.max(0, ...pageRects.map(r => r.y)) + 120);
+      letterCanvas.style.width = `${layerWidth}px`;
+      letterCanvas.style.height = `${layerHeight}px`;
+      letterCanvas.width = layerWidth * scale;
+      letterCanvas.height = layerHeight * scale;
+      letterContext.setTransform(scale, 0, 0, scale, 0, 0);
     };
     measure();
-    window.addEventListener("scroll", measure, { passive: true });
+    const observer = new ResizeObserver(measure);
+    observer.observe(document.body);
     window.addEventListener("resize", measure);
     void document.fonts.ready.then(measure);
     const draw = (time: number) => {
       const delta = Math.min((time - previous) / 1000, 0.05);
       previous = time;
       context.clearRect(0, 0, width, height);
+      letterContext.clearRect(0, 0, layerWidth, layerHeight);
       if (!document.hidden && !motion.matches) {
         christmasScene.time += delta;
-        const visible = christmasScene.surfaces.filter(s => s.y > 200 && s.y < height - 20);
-        christmasScene.pose = climberPose(christmasScene.time, visible);
+        // Climb only the headline letters, in page coordinates, so scrolling never changes the route.
+        const route = headlineSurfaces.map(i => christmasScene.surfaces[i]!).filter(Boolean);
+        christmasScene.pose = climberPose(christmasScene.time, route);
         const pose = christmasScene.pose;
         christmasScene.surfaces.forEach((surface, i) => {
           surface.depth = depositSnow(surface.depth, delta);
@@ -86,7 +112,9 @@ export function ChristmasSnow() {
         const surface = christmasScene.surfaces[i];
         if (!surface || el.classList.contains("snow-logo")) return;
         const points = contours.get(el) ?? [];
-        const r = el.getBoundingClientRect();
+        const r = pageRects[i];
+        if (!r) return;
+        const context = letterContext;
         context.fillStyle = snow; context.strokeStyle = edge; context.lineWidth = 0.5;
         if (surface.depth < 0.2) return;
         const segments: typeof points[] = [];
@@ -141,10 +169,15 @@ export function ChristmasSnow() {
       cancelAnimationFrame(frame);
       window.removeEventListener("resize", resize);
       window.removeEventListener("resize", measure);
-      window.removeEventListener("scroll", measure);
+      observer.disconnect();
     };
   }, []);
-  return <canvas ref={canvasRef} className="christmas-snowfall" aria-hidden="true" />;
+  return (
+    <>
+      <canvas ref={letterRef} className="christmas-letter-snow" aria-hidden="true" />
+      <canvas ref={canvasRef} className="christmas-snowfall" aria-hidden="true" />
+    </>
+  );
 }
 
 export function SnowText({ children }: { children: string }) {

@@ -53,4 +53,4 @@ use the editor.
 - Owner admin bootstrap reads the owner email from the private owner_admin_emails table (service-role only); never hardcode personal emails in code or migrations.
 - Keep seasonal decoration presentation-only, with shared CSS color tokens and reduced-motion support, so matching and safety rules remain unchanged.
 
-- Seasonal snow uses a shared plain-TypeScript simulation and dynamically imported Three.js overlay; DOM-measured letter surfaces keep clearing, scrolling and responsive placement synchronized.
+- Seasonal snow uses a shared plain-TypeScript simulation and dynamically imported Three.js overlay; falling flakes use a viewport-fixed canvas, while letter snow and the climber use page coordinates on page-anchored layers so they scroll natively with the letters without lag.
