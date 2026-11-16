@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { useQuery, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { Star, LoaderCircle } from "lucide-react";
+import { Star, LoaderCircle, Snowflake, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Brand, Eyebrow, Footer } from "@/components/kolli/Brand";
 import { JoinDialog } from "@/components/kolli/JoinDialog";
@@ -18,6 +18,7 @@ import { TitleRatingDialog } from "@/components/kolli/TitleRatingDialog";
 import { InstallApp } from "@/components/kolli/InstallApp";
 import { Inbox } from "@/components/kolli/Inbox";
 import { supabase } from "@/integrations/supabase/client";
+import { ChristmasGarland } from "@/components/kolli/ChristmasGarland";
 
 export const Route = createFileRoute("/")({
   loader: ({ context }) => context.queryClient.ensureQueryData(catalogOptions()),
@@ -75,6 +76,7 @@ function Home() {
 
   return (
     <div className="min-h-screen">
+      <ChristmasGarland />
       <header className="flex h-16 items-center justify-between gap-3 border-b border-foreground/10 px-4 sm:h-20 sm:px-[7%]">
         <div className="flex items-center gap-10">
           <Brand />
@@ -103,11 +105,11 @@ function Home() {
       <main>
         <section id="discover" className="relative grid items-center gap-12 px-4 py-10 sm:px-[7%] sm:py-16 lg:grid-cols-[1.1fr_0.9fr] lg:py-24">
           <div>
-            <Eyebrow>GOOD MOVIES. BETTER COMPANY.</Eyebrow>
+             <Eyebrow><Snowflake className="size-4 shrink-0" /> CHRISTMAS AT KOLLI</Eyebrow>
             <h1 className="mt-6 font-display text-5xl font-extrabold leading-[0.95] tracking-tighter sm:text-7xl">
-              Find your<br />people.<br /><span className="font-serif font-normal italic text-accent">Press play.</span>
+               Find your<br />people.<br /><span className="font-serif font-normal italic text-accent">Merry movie nights.</span>
             </h1>
-            <p className="mt-6 max-w-md text-muted-foreground">The best part of watching is having someone to watch with. Find your kind of movie person and make a night of it.</p>
+             <p className="mt-6 max-w-md text-muted-foreground">A festive favourite. A little company. Find your kind of movie person and share some Christmas magic.</p>
             <form onSubmit={(e) => { e.preventDefault(); setSubmitted(query); document.getElementById("picks")?.scrollIntoView(); }} className="mt-8 flex max-w-xl items-center gap-2 rounded-md border bg-card p-2 shadow-sm">
               <span className="pl-2 text-muted-foreground" aria-hidden>⌕</span>
               <input value={query} onChange={(e) => setQuery(e.target.value)} type="search" placeholder="Search a movie or show..." aria-label="Search movies and shows" className="min-w-0 flex-1 bg-transparent py-2 text-sm outline-none" />
@@ -122,6 +124,11 @@ function Home() {
             </div>
           </div>
           <div className="relative mx-auto h-[340px] w-full max-w-md sm:h-[420px]" aria-label="Featured movies">
+            <div aria-hidden="true" className="pointer-events-none absolute inset-0 text-holiday-gold">
+              <Sparkles className="christmas-sparkle absolute left-8 top-0 size-7" />
+              <Snowflake className="christmas-sparkle absolute bottom-16 right-0 size-6" />
+              <Star className="christmas-sparkle absolute bottom-0 right-20 size-5" />
+            </div>
             <img src="https://image.tmdb.org/t/p/w342/x2LSRK2Cm7MZhjluni1msVJ3wDF.jpg" alt="Stranger Things" className="absolute right-4 top-0 w-40 rotate-6 sm:w-52 rounded-md shadow-xl" />
             <div className="absolute bottom-0 left-4 w-48 -rotate-3 sm:w-60 overflow-hidden rounded-md shadow-2xl">
               <img src="https://image.tmdb.org/t/p/w342/qWnJzyZhyy74gjpSjIXWmuk0ifX.jpg" alt="The Office" />
@@ -131,7 +138,7 @@ function Home() {
               </div>
             </div>
             <div className="absolute left-0 top-10 flex items-center gap-2 rounded-md bg-card px-3 py-2 text-xs shadow-lg">
-              <span className="text-accent">✳</span><span><strong className="block">Same taste?</strong><small className="text-muted-foreground">Meet your match.</small></span>
+                 <Snowflake className="size-4 text-accent" /><span><strong className="block">A little Christmas company</strong><small className="text-muted-foreground">Meet your match.</small></span>
             </div>
           </div>
         </section>

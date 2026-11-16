@@ -51,3 +51,4 @@ use the editor.
 - Icebreakers are written once per match by an authenticated server function using TMDB (or the admin event description) via the admin client after verifying membership through RLS.
 - Live events are publicly readable only while upcoming (ends_at > now()) and only through safe column grants; created_by stays hidden, and admins read the full list via has_role.
 - Owner admin bootstrap reads the owner email from the private owner_admin_emails table (service-role only); never hardcode personal emails in code or migrations.
+- Keep seasonal decoration presentation-only, with shared CSS color tokens and reduced-motion support, so matching and safety rules remain unchanged.

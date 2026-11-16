@@ -66,6 +66,7 @@
   --color-star: var(--star);
   --color-ink-panel: var(--ink-panel);
   --color-ink-panel-foreground: var(--ink-panel-foreground);
+  --color-holiday-gold: var(--holiday-gold);
   --font-sans: "DM Sans", ui-sans-serif, sans-serif;
   --font-display: "Manrope", ui-sans-serif, sans-serif;
   --font-serif: Georgia, "Times New Roman", serif;
@@ -87,11 +88,11 @@
   --card-foreground: oklch(0.255 0.01 85);
   --popover: oklch(0.966 0.008 85);
   --popover-foreground: oklch(0.255 0.01 85);
-  --primary: oklch(0.255 0.01 85);
+  --primary: oklch(0.36 0.065 158);
   --primary-foreground: oklch(0.99 0.006 95);
-  --secondary: oklch(0.93 0.012 85);
+  --secondary: oklch(0.94 0.018 155);
   --secondary-foreground: oklch(0.255 0.01 85);
-  --muted: oklch(0.93 0.012 85);
+  --muted: oklch(0.94 0.018 155);
   --muted-foreground: oklch(0.55 0.012 80);
   --accent: oklch(0.545 0.195 24);
   --accent-foreground: oklch(0.99 0 0);
@@ -102,7 +103,8 @@
   --ring: oklch(0.545 0.195 24);
   --success: oklch(0.63 0.09 145);
   --star: oklch(0.83 0.12 75);
-  --ink-panel: oklch(0.26 0.01 85);
+  --holiday-gold: oklch(0.63 0.11 80);
+  --ink-panel: oklch(0.26 0.04 158);
   --ink-panel-foreground: oklch(0.96 0.008 85);
   --chart-1: oklch(0.545 0.195 24);
   --chart-2: oklch(0.6 0.118 184.704);
@@ -133,6 +135,25 @@
 html { scroll-behavior: smooth; }
 body { font-family: var(--font-sans); }
 
+.christmas-garland {
+  height: 76px;
+  overflow: hidden;
+  pointer-events: none;
+  background: var(--background);
+}
+.christmas-sparkle {
+  animation: christmas-twinkle 3s ease-in-out infinite;
+}
+.christmas-sparkle:nth-child(2) { animation-delay: 1s; }
+.christmas-sparkle:nth-child(3) { animation-delay: 2s; }
+@keyframes christmas-twinkle {
+  0%, 100% { opacity: 0.45; transform: scale(0.9); }
+  50% { opacity: 1; transform: scale(1.1); }
+}
+@media (min-width: 640px) {
+  .christmas-garland { height: 100px; }
+}
+
 @keyframes kolli-ring { to { transform: rotate(360deg); } }
 @keyframes kolli-dot { 0%, 100% { transform: translateY(0); opacity: 0.4; } 50% { transform: translateY(-5px); opacity: 1; } }
 @keyframes kolli-reveal { from { opacity: 1; } to { opacity: 0; visibility: hidden; } }
@@ -142,6 +163,6 @@ body { font-family: var(--font-sans); }
 .kolli-loading-dot:nth-child(3) { animation-delay: 0.3s; }
 .kolli-loading-leaving { pointer-events: none; animation: kolli-reveal 0.45s ease-out forwards; }
 @media (prefers-reduced-motion: reduce) {
-  .kolli-loading-ring, .kolli-loading-dot { animation: none; }
+  .kolli-loading-ring, .kolli-loading-dot, .christmas-sparkle { animation: none; }
   .kolli-loading-leaving { animation-duration: 0.01s; }
 }
