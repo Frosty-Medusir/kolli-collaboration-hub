@@ -118,12 +118,11 @@ export function ChristmasSnow() {
         }
       });
       if (!motion.matches && !document.hidden) {
-        const pageHeight = Math.max(height, document.documentElement.scrollHeight);
         for (const flake of flakes) {
-          flake.y += delta * flake.speed / pageHeight;
+          flake.y += delta * flake.speed / height;
           if (flake.y > 1.02) flake.y = -0.02;
-          const x = flake.x * width + Math.sin(time / 2000 + flake.phase) * 18 - window.scrollX;
-          const y = flake.y * pageHeight - window.scrollY;
+          const x = flake.x * width + Math.sin(time / 2000 + flake.phase) * 18;
+          const y = flake.y * height;
           context.fillStyle = snow;
           context.strokeStyle = edge;
           context.lineWidth = 0.6;
