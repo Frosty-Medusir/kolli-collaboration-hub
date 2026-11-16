@@ -48,7 +48,7 @@ export function ChristmasSnow() {
             paint.fillText(el.textContent ?? "", 4, font);
             const pixels = paint.getImageData(0, 0, mask.width, mask.height).data;
             const points: { x: number; y: number }[] = [];
-            for (let x = 0; x < mask.width; x += 2) {
+            for (let x = 0; x < mask.width; x++) {
               for (let y = 0; y < mask.height; y++) {
                 if ((pixels[(y * mask.width + x) * 4 + 3] ?? 0) > 100) {
                   points.push({ x: x - 4, y: y + (r.height - font) / 2 - font * 0.18 }); break;
@@ -88,12 +88,32 @@ export function ChristmasSnow() {
         const points = contours.get(el) ?? [];
         const r = el.getBoundingClientRect();
         context.fillStyle = snow; context.strokeStyle = edge; context.lineWidth = 0.5;
-        for (let j = 0; j < points.length; j++) {
-          const point = points[j];
-          if (!point || surface.depth < 0.2) continue;
-          const drift = surface.depth * (0.55 + 0.3 * Math.sin(j * 0.7 + i) ** 2);
+        if (surface.depth < 0.2) return;
+        const segments: typeof points[] = [];
+        for (const point of points) {
+          const segment = segments[segments.length - 1];
+          const last = segment?.[segment.length - 1];
+          if (!segment || !last || point.x - last.x > 2 || Math.abs(point.y - last.y) > 8) {
+            segments.push([point]);
+          } else {
+            segment.push(point);
+          }
+        }
+        for (const segment of segments) {
+          if (segment.length < 2) continue;
           context.beginPath();
-          context.ellipse(r.x + point.x, r.y + point.y - drift * 0.2, 2.1, drift * 0.48, 0, 0, Math.PI * 2);
+          segment.forEach((point, j) => {
+            const drift = surface.depth * (0.75 + 0.18 * Math.sin(point.x * 0.13 + i) + 0.07 * Math.sin(point.x * 0.31));
+            const x = r.x + point.x;
+            const y = r.y + point.y - drift;
+            if (j === 0) context.moveTo(x, y);
+            else context.lineTo(x, y);
+          });
+          for (let j = segment.length - 1; j >= 0; j--) {
+            const point = segment[j];
+            if (point) context.lineTo(r.x + point.x, r.y + point.y + surface.depth * 0.18);
+          }
+          context.closePath();
           context.fill(); context.stroke();
         }
       });
