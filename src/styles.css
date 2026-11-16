@@ -157,35 +157,17 @@ body { font-family: var(--font-sans); }
 .snow-letter::after, .snow-logo::after {
   content: ""; position: absolute; pointer-events: none;
   background: var(--snow); border-bottom: 1px solid var(--snow-edge);
-  box-shadow: 0 2px 2px var(--snow-shadow);
+  box-shadow: 0 2px 3px var(--snow-shadow);
   border-radius: 65% 45% 35% 25%;
-  transform-origin: bottom; animation: snow-accumulate 18s ease-in-out infinite;
+  height: var(--snow-depth, 2.5px);
 }
-.snow-letter::after { left: 8%; top: 0.12em; width: 84%; height: 0.1em; }
-.snow-letter:nth-child(3n)::after { top: 0.18em; height: 0.08em; border-radius: 40% 75% 25% 50%; }
-.snow-letter:nth-child(2n)::after { animation-delay: -3s; }
+.snow-letter::after { left: 4%; top: 0.16em; width: 92%; transform: translateY(-80%); }
+.snow-letter:nth-child(3n)::after { border-radius: 40% 75% 25% 50%; }
 .snow-logo { position: relative; display: inline-flex; }
-.snow-logo::after { left: 0; top: -3px; width: 100%; height: 8px; }
-.snow-headline { padding-bottom: 86px; }
-.olaf-sweeper { position: absolute; right: 12px; bottom: -4px; width: 92px; height: 112px; pointer-events: none; }
-.olaf-snow { fill: var(--snow); stroke: var(--snow-edge); stroke-width: 1.5; }
-.olaf-twig { fill: none; stroke: var(--olaf-twig); stroke-width: 3.5; stroke-linecap: round; }
-.olaf-coal { fill: var(--foreground); }
-.olaf-tooth { fill: var(--snow); }
-.olaf-carrot { fill: var(--olaf-carrot); }
-.olaf-broom-handle { fill: none; stroke: var(--olaf-twig); stroke-width: 4; stroke-linecap: round; }
-.olaf-broom { fill: var(--holiday-gold); }
-.olaf-broom-detail { stroke: var(--olaf-twig); stroke-width: 1; fill: none; }
-.olaf-wiping-arm { transform-origin: 105px 116px; animation: olaf-wipe 3s ease-in-out infinite; }
-.olaf-body { animation: olaf-bob 3s ease-in-out infinite; transform-origin: bottom; }
-.olaf-snow-spray { fill: var(--snow); stroke: var(--snow-edge); animation: olaf-spray 3s ease-out infinite; }
-.olaf-snowbank { position: absolute; left: 0; bottom: 0; width: 100%; height: 5px; border-radius: 50%; background: var(--snow); border-bottom: 1px solid var(--snow-edge); animation: olaf-clear 3s ease-in-out infinite; z-index: -1; }
-@keyframes snow-accumulate { 0%, 100% { transform: scaleY(0.2); opacity: 0.5; } 75%, 90% { transform: scaleY(1); opacity: 1; } }
-@keyframes olaf-wipe { 0%, 100% { transform: rotate(-16deg); } 50% { transform: rotate(18deg); } }
-@keyframes olaf-bob { 0%, 100% { transform: rotate(-2deg); } 50% { transform: rotate(2deg); } }
-@keyframes olaf-spray { 0%, 40%, 100% { opacity: 0; transform: translate(0, 0); } 55% { opacity: 1; } 85% { opacity: 0; transform: translate(12px, -12px); } }
-@keyframes olaf-clear { 0%, 100% { transform: scaleX(1); } 65% { transform: scaleX(0.3); } }
-@media (min-width: 640px) { .snow-headline { padding-bottom: 100px; } .olaf-sweeper { width: 112px; height: 137px; right: 18px; } }
+.snow-logo::after { left: 0; top: 0; width: 100%; transform: translateY(-80%); }
+.snow-headline { padding-bottom: 32px; }
+.snow-climber-3d { position: fixed; left: 0; top: 0; width: 90px; height: 116px; pointer-events: none; z-index: 26; will-change: transform; }
+.snow-climber-3d canvas { width: 90px !important; height: 116px !important; display: block; }
 @keyframes christmas-twinkle {
   0%, 100% { opacity: 0.45; transform: scale(0.9); }
   50% { opacity: 1; transform: scale(1.1); }
@@ -205,6 +187,6 @@ body { font-family: var(--font-sans); }
 @media (prefers-reduced-motion: reduce) {
   .kolli-loading-ring, .kolli-loading-dot, .christmas-sparkle { animation: none; }
   .kolli-loading-leaving { animation-duration: 0.01s; }
-  .christmas-snowfall, .olaf-snow-spray { display: none; }
-  .snow-letter::after, .snow-logo::after, .olaf-wiping-arm, .olaf-body, .olaf-snowbank { animation: none; }
+  .christmas-snowfall { display: none; }
+  .snow-climber-3d { display: none; }
 }

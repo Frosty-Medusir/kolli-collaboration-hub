@@ -1,4 +1,8 @@
-import { useEffect, useRef } from "react";
+import { lazy, Suspense, useEffect, useRef } from "react";
+import { ClientOnly } from "@tanstack/react-router";
+import { christmasScene, clearSnow, climberPose, depositSnow } from "@/lib/christmas-simulation";
+
+const SnowClimber = lazy(() => import("./SnowClimber"));
 
 export function ChristmasSnow() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -26,10 +30,36 @@ export function ChristmasSnow() {
     const colors = getComputedStyle(document.documentElement);
     const snow = colors.getPropertyValue("--snow").trim();
     const edge = colors.getPropertyValue("--snow-edge").trim();
+    let surfaces: HTMLElement[] = [];
+    const measure = () => {
+      surfaces = Array.from(document.querySelectorAll<HTMLElement>("header .snow-logo, header .snow-letter, .snow-headline .snow-letter"));
+      christmasScene.surfaces = surfaces.map((el, i) => {
+        const r = el.getBoundingClientRect();
+        const font = parseFloat(getComputedStyle(el).fontSize);
+        return { x: r.x, y: r.y + (el.classList.contains("snow-logo") ? 0 : font * 0.16), width: r.width, depth: christmasScene.surfaces[i]?.depth ?? 2.5 };
+      });
+    };
+    measure();
+    window.addEventListener("scroll", measure, { passive: true });
+    window.addEventListener("resize", measure);
+    void document.fonts.ready.then(measure);
     const draw = (time: number) => {
       const delta = Math.min((time - previous) / 1000, 0.05);
       previous = time;
       context.clearRect(0, 0, width, height);
+      if (!document.hidden && !motion.matches) {
+        christmasScene.time += delta;
+        const visible = christmasScene.surfaces.filter(s => s.y > 85 && s.y < height - 20);
+        christmasScene.pose = climberPose(christmasScene.time, visible);
+        const pose = christmasScene.pose;
+        christmasScene.surfaces.forEach((surface, i) => {
+          surface.depth = depositSnow(surface.depth, delta);
+          if (pose.sweeping && Math.abs(surface.y - pose.y) < 12 && Math.abs(surface.x + surface.width / 2 - pose.x) < 48) {
+            surface.depth = clearSnow(surface.depth, delta);
+          }
+          surfaces[i]?.style.setProperty("--snow-depth", `${surface.depth}px`);
+        });
+      }
       if (!motion.matches && !document.hidden) {
         for (const flake of flakes) {
           flake.y += delta * flake.speed / height;
@@ -53,6 +83,8 @@ export function ChristmasSnow() {
     return () => {
       cancelAnimationFrame(frame);
       window.removeEventListener("resize", resize);
+      window.removeEventListener("resize", measure);
+      window.removeEventListener("scroll", measure);
     };
   }, []);
   return <canvas ref={canvasRef} className="christmas-snowfall" aria-hidden="true" />;
@@ -74,40 +106,5 @@ export function SnowText({ children }: { children: string }) {
 }
 
 export function OlafSweeper() {
-  return (
-    <div className="olaf-sweeper" role="img" aria-label="Olaf sweeping away the snow">
-      <svg viewBox="0 0 180 220" className="h-full w-full" aria-hidden="true">
-        <g className="olaf-body">
-          <path d="M74 91 28 72m5 2-8-13m8 13-15 1" className="olaf-twig" />
-          <ellipse cx="82" cy="190" rx="32" ry="29" className="olaf-snow" />
-          <ellipse cx="83" cy="144" rx="24" ry="27" className="olaf-snow" />
-          <ellipse cx="64" cy="214" rx="18" ry="6" className="olaf-snow" />
-          <ellipse cx="100" cy="214" rx="18" ry="6" className="olaf-snow" />
-          <path d="M60 35Q51 52 61 80L69 103Q83 116 97 103L105 79Q118 50 103 35Q80 23 60 35Z" className="olaf-snow" />
-          <path d="M76 32 70 12m14 18 3-24m3 25 12-17" className="olaf-twig" />
-          <ellipse cx="73" cy="53" rx="9" ry="12" className="olaf-snow" />
-          <ellipse cx="94" cy="53" rx="9" ry="12" className="olaf-snow" />
-          <ellipse cx="76" cy="54" rx="3" ry="5" className="olaf-coal" />
-          <ellipse cx="92" cy="54" rx="3" ry="5" className="olaf-coal" />
-          <path d="M62 39q9-7 17-2m8 0q9-5 17 2" className="olaf-twig" />
-          <path d="M80 62Q86 56 91 65L123 72 86 76Q79 73 80 62Z" className="olaf-carrot" />
-          <path d="M65 79Q85 94 102 79Q99 104 83 102Q70 101 65 79Z" className="olaf-coal" />
-          <path d="M77 84h15v9H77Z" className="olaf-tooth" />
-          <circle cx="83" cy="135" r="4" className="olaf-coal" />
-          <circle cx="83" cy="151" r="4" className="olaf-coal" />
-          <circle cx="82" cy="184" r="5" className="olaf-coal" />
-          <g className="olaf-wiping-arm">
-            <path d="m105 116 37-17m-5 2 7-13m-7 13 15 2" className="olaf-twig" />
-            <path d="m146 83-17 100" className="olaf-broom-handle" />
-            <path d="m119 181 20 3 8 25-41-6Z" className="olaf-broom" />
-            <path d="m120 187-8 14m17-12-4 15m10-14 5 16" className="olaf-broom-detail" />
-          </g>
-        </g>
-        <g className="olaf-snow-spray">
-          <circle cx="143" cy="210" r="3" /><circle cx="154" cy="198" r="2" /><circle cx="163" cy="208" r="3" />
-        </g>
-      </svg>
-      <span className="olaf-snowbank" aria-hidden="true" />
-    </div>
-  );
+  return <ClientOnly fallback={null}><Suspense fallback={null}><SnowClimber /></Suspense></ClientOnly>;
 }

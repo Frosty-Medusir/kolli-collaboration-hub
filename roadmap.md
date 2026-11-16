@@ -1,4 +1,5 @@
 # Tasks
+- [x] Add accumulating snow and a custom 3D snowman that climbs between logo/letters and clears them; tests and desktop/mobile checks passed. Exact Olaf model unavailable with a verified reusable license.
 - [x] Vibe filters (Chatty/Silent Watcher, Mic On/Text Only) block clashing pairs; tested.
 - [x] Save-for-later queue (7 days) with in-app match alerts; tested.
 - [ ] Email match alerts: waiting for the owner to set up a sender email domain.
