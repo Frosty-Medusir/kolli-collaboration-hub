@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import { christmasScene } from "@/lib/christmas-simulation";
 
 export default function SnowClimber() {
@@ -97,7 +98,10 @@ export default function SnowClimber() {
       const draw = () => {
         if (disposed) return;
         const { pose, time } = christmasScene;
-        host.style.transform = `translate3d(${Math.max(0, Math.min(window.innerWidth - 90, pose.x - 45))}px, ${Math.max(0, pose.y - 103)}px, 0)`;
+        const headline = document.querySelector(".snow-headline")?.getBoundingClientRect();
+        const x = motion.matches ? (headline?.right ?? 200) - 75 : pose.x;
+        const y = motion.matches ? (headline?.bottom ?? 350) : pose.y;
+        host.style.transform = `translate3d(${Math.max(0, Math.min(window.innerWidth - 130, x - 65))}px, ${Math.max(80, Math.min(window.innerHeight - 170, y - 148))}px, 0)`;
         const wave = Math.sin(time * (pose.climbing ? 8 : 5));
         body.rotation.y = pose.facing * 0.32;
         body.rotation.z = motion.matches ? 0 : wave * (pose.climbing ? 0.09 : 0.035);
@@ -117,5 +121,5 @@ export default function SnowClimber() {
     });
     return () => { disposed = true; cleanup(); };
   }, []);
-  return <div ref={hostRef} className="snow-climber-3d" role="img" aria-label="A 3D snowman climbing between letters and brushing snow away" />;
+  return createPortal(<div ref={hostRef} className="snow-climber-3d" role="img" aria-label="A 3D snowman climbing between letters and brushing snow away" />, document.body);
 }
