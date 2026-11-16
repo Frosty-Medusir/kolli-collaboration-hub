@@ -1,12 +1,13 @@
 import { Link } from "@tanstack/react-router";
 import logo from "@/assets/kolli-logo.png";
+import { SnowText } from "./ChristmasSnow";
 
 export function Brand({ small = false }: { small?: boolean }) {
   return (
     <Link to="/" aria-label="Kolli home" className="inline-flex items-center gap-2 font-display font-extrabold tracking-tighter">
-      <img src={logo} alt="" className={small ? "size-7 rounded-full object-cover" : "size-8 rounded-full object-cover"} />
+      <span className="snow-logo"><img src={logo} alt="" className={small ? "size-7 rounded-full object-cover" : "size-8 rounded-full object-cover"} /></span>
       <span className={small ? "text-xl" : "text-2xl"}>
-        kolli<span className="text-accent">.</span>
+        <SnowText>kolli</SnowText><span className="text-accent">.</span>
       </span>
     </Link>
   );

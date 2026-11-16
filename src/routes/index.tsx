@@ -19,6 +19,7 @@ import { InstallApp } from "@/components/kolli/InstallApp";
 import { Inbox } from "@/components/kolli/Inbox";
 import { supabase } from "@/integrations/supabase/client";
 import { ChristmasGarland } from "@/components/kolli/ChristmasGarland";
+import { ChristmasSnow, OlafSweeper, SnowText } from "@/components/kolli/ChristmasSnow";
 
 export const Route = createFileRoute("/")({
   loader: ({ context }) => context.queryClient.ensureQueryData(catalogOptions()),
@@ -77,6 +78,7 @@ function Home() {
   return (
     <div className="min-h-screen">
       <ChristmasGarland />
+      <ChristmasSnow />
       <header className="flex h-16 items-center justify-between gap-3 border-b border-foreground/10 px-4 sm:h-20 sm:px-[7%]">
         <div className="flex items-center gap-10">
           <Brand />
@@ -106,9 +108,12 @@ function Home() {
         <section id="discover" className="relative grid items-center gap-12 px-4 py-10 sm:px-[7%] sm:py-16 lg:grid-cols-[1.1fr_0.9fr] lg:py-24">
           <div>
              <Eyebrow><Snowflake className="size-4 shrink-0" /> CHRISTMAS AT KOLLI</Eyebrow>
-            <h1 className="mt-6 font-display text-5xl font-extrabold leading-[0.95] tracking-tighter sm:text-7xl">
-               Find your<br />people.<br /><span className="font-serif font-normal italic text-accent">Merry movie nights.</span>
-            </h1>
+            <div className="snow-headline relative">
+              <h1 aria-label="Find your people. Merry movie nights." className="mt-6 font-display text-5xl font-extrabold leading-[0.95] tracking-tighter sm:text-7xl">
+                <SnowText>Find your</SnowText><br /><SnowText>people.</SnowText><br /><span className="font-serif font-normal italic text-accent"><SnowText>Merry movie nights.</SnowText></span>
+              </h1>
+              <OlafSweeper />
+            </div>
              <p className="mt-6 max-w-md text-muted-foreground">A festive favourite. A little company. Find your kind of movie person and share some Christmas magic.</p>
             <form onSubmit={(e) => { e.preventDefault(); setSubmitted(query); document.getElementById("picks")?.scrollIntoView(); }} className="mt-8 flex max-w-xl items-center gap-2 rounded-md border bg-card p-2 shadow-sm">
               <span className="pl-2 text-muted-foreground" aria-hidden>⌕</span>
